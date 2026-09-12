@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { SiteNav } from '@/components/site-nav'
 import { SiteFooter } from '@/components/site-footer'
+import { StandingsTable } from '@/components/standings-table'
 import { nextEvent } from '@/lib/events'
 
 export const metadata: Metadata = {
@@ -44,6 +45,20 @@ export default function TulemusedPage() {
             >
               Ava Live Center
             </Link>
+          </div>
+        </section>
+
+        <section className="py-16 lg:py-20">
+          <div className="shell">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue">
+              Punktiseis
+            </p>
+            <h2 className="mt-3 font-display text-3xl font-bold uppercase leading-tight text-black sm:text-4xl">
+              Eesti meistrivõistluste ja karikavõistluste 2026 seis
+            </h2>
+            <div className="mt-10">
+              <StandingsTable />
+            </div>
           </div>
         </section>
       </main>
