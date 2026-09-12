@@ -10,12 +10,16 @@ export const metadata: Metadata = {
 }
 
 export default function KalenderPage() {
-  const events = byDate()
   const now = Date.now()
-  const items = events.map((event) => ({
-    event,
-    isPast: new Date(event.endsAt).getTime() < now,
-  }))
+  const items = byDate()
+    .map((event) => ({ event, isPast: new Date(event.endsAt).getTime() < now }))
+    // Tulemas etapid ees (lähim enne), toimunud etapid taga (viimane enne) —
+    // mitte puhtalt kronoloogiline, kus jaanuari toimunud etapp oleks esimene.
+    .sort((a, b) => {
+      if (a.isPast !== b.isPast) return a.isPast ? 1 : -1
+      const diff = new Date(a.event.startsAt).getTime() - new Date(b.event.startsAt).getTime()
+      return a.isPast ? -diff : diff
+    })
 
   return (
     <>
