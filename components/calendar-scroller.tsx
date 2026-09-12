@@ -152,7 +152,7 @@ export function CalendarScroller({ items }: { items: Item[] }) {
     <div className="relative">
       <ul
         ref={trackRef}
-        className="scrollbar-none -mx-5 flex snap-x snap-mandatory items-center gap-5 overflow-x-auto px-5 py-14 sm:-mx-8 sm:px-8"
+        className="scrollbar-none -mx-5 flex snap-x snap-mandatory items-center gap-5 overflow-x-auto scroll-smooth px-5 py-14 sm:-mx-8 sm:px-8"
       >
         <li ref={startSpacerRef} aria-hidden="true" className="shrink-0" />
 
@@ -164,7 +164,7 @@ export function CalendarScroller({ items }: { items: Item[] }) {
               ref={(el) => {
                 itemRefs.current[i] = el
               }}
-              className={`w-[78vw] shrink-0 snap-center transition-transform duration-300 ease-forward sm:w-[320px] ${
+              className={`w-[78vw] shrink-0 snap-center transition-transform duration-500 ease-forward sm:w-[320px] ${
                 isActive ? 'z-10 scale-[1.2]' : 'scale-100'
               }`}
             >
