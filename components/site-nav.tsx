@@ -115,10 +115,10 @@ export function SiteNav() {
         </ul>
 
         <Link
-          href="/tulemused"
+          href="/otse"
           className="hidden items-center bg-blue px-5 py-2.5 text-[13px] font-bold uppercase tracking-[0.06em] text-white transition-opacity hover:opacity-90 lg:inline-flex"
         >
-          Otsetulemused
+          Live
         </Link>
 
         <button
@@ -167,11 +167,11 @@ export function SiteNav() {
 
             <li className="py-3">
               <Link
-                href="/tulemused"
+                href="/otse"
                 onClick={() => setOpen(false)}
                 className="inline-flex w-full items-center justify-center bg-blue px-4 py-3 text-sm font-bold uppercase tracking-[0.06em] text-white"
               >
-                Otsetulemused
+                Live
               </Link>
             </li>
           </ul>

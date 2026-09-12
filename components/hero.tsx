@@ -74,10 +74,10 @@ export function Hero({ event }: { event: RallyEvent }) {
               <ArrowRight size={16} weight="bold" />
             </Link>
             <Link
-              href="/tulemused"
+              href="/otse"
               className="inline-flex items-center whitespace-nowrap border border-white/40 px-7 py-4 text-sm font-bold uppercase tracking-[0.06em] text-white transition-colors hover:border-white"
             >
-              Otsetulemused
+              Live
             </Link>
           </motion.div>
         </div>
