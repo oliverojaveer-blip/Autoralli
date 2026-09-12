@@ -3,6 +3,7 @@ import { SiteNav } from '@/components/site-nav'
 import { SiteFooter } from '@/components/site-footer'
 import { StandingsTable } from '@/components/standings-table'
 import { ResultsEventSlider } from '@/components/results-event-slider'
+import { SeasonSelector } from '@/components/season-selector'
 
 export const metadata: Metadata = {
   title: 'Tulemused',
@@ -36,7 +37,11 @@ export default function TulemusedPage() {
               ametlikud tulemused.
             </p>
 
-            <div className="mt-10">
+            <div className="mt-8">
+              <SeasonSelector />
+            </div>
+
+            <div className="mt-8">
               <ResultsEventSlider />
             </div>
           </div>
