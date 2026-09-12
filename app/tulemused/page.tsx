@@ -1,9 +1,8 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { SiteNav } from '@/components/site-nav'
 import { SiteFooter } from '@/components/site-footer'
 import { StandingsTable } from '@/components/standings-table'
-import { nextEvent } from '@/lib/events'
+import { ResultsEventSlider } from '@/components/results-event-slider'
 
 export const metadata: Metadata = {
   title: 'Tulemused',
@@ -20,8 +19,6 @@ export const metadata: Metadata = {
  * viimase uuenduse aega ning staatust (unofficial/provisional/official/amended).
  */
 export default function TulemusedPage() {
-  const event = nextEvent()
-
   return (
     <>
       <SiteNav />
@@ -32,19 +29,16 @@ export default function TulemusedPage() {
               Tulemused
             </p>
             <h1 className="mt-5 max-w-[26ch] font-display text-4xl font-bold uppercase leading-[1.02] text-black sm:text-5xl">
-              Ametlikud tulemused
+              Vali etapp
             </h1>
             <p className="mt-6 max-w-[58ch] text-lg leading-relaxed text-slate">
-              Järgmise etapi, {event.name}, tulemused ilmuvad siia kohe pärast
-              ajavõtupartneriga liidestumist. Kuni selleni saad jälgida otse-eetrit
-              Live Centeris.
+              Iga etapi logo viib selle korraldaja kodulehele, kus avaldatakse
+              ametlikud tulemused.
             </p>
-            <Link
-              href="/otse"
-              className="mt-8 inline-flex items-center bg-blue px-7 py-4 text-sm font-bold uppercase tracking-[0.06em] text-white transition-opacity hover:opacity-90"
-            >
-              Ava Live Center
-            </Link>
+
+            <div className="mt-10">
+              <ResultsEventSlider />
+            </div>
           </div>
         </section>
 
