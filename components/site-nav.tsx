@@ -55,20 +55,12 @@ export function SiteNav() {
           aria-label="Autoralli.ee avaleht — Estonian Rally Championship"
         >
           <Image
-            src="/images/erc-flag-color.png"
-            alt=""
-            width={40}
-            height={34}
-            priority
-            className="h-8 w-auto sm:hidden"
-          />
-          <Image
             src="/images/erc-logo-color.png"
             alt="Estonian Rally Championship"
             width={340}
             height={40}
             priority
-            className="hidden h-8 w-auto sm:block lg:h-9"
+            className="h-6 w-auto sm:h-8 lg:h-9"
           />
         </Link>
 
