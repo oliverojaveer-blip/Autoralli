@@ -88,18 +88,30 @@ export function CalendarScroller({ items }: { items: Item[] }) {
     // scrollIntoView jätab kerimise ja snap-loogika täpse arvutuse
     // brauserile, nii ei jää see käsitsi arvutatud nihkest lahku.
     //
-    // Probleem: kalendri sektsioon on avalehel esimesel laadimisel enamasti
-    // allpool nähtavat ala, nii et "block: nearest" kerib ka KOGU LEHE
-    // sinna alla, mitte ainult seda horisontaalset riba. Fikseerime lehe
-    // vertikaalse asendi enne ja pärast, et muutuks ainult ribafookus.
+    // Probleem #1: kalendri sektsioon on avalehel esimesel laadimisel
+    // enamasti allpool nähtavat ala, nii et "block: nearest" kerib ka KOGU
+    // LEHE sinna alla, mitte ainult seda horisontaalset riba. Fikseerime
+    // lehe vertikaalse asendi enne ja pärast, et muutuks ainult ribafookus.
+    //
+    // Probleem #2: `html { scroll-behavior: smooth }` (globals.css) muudab
+    // nii scrollIntoView kui ka parandava scrollTo animeerituks — kaks
+    // samaaegset sujuvat kerimist ei tühista teineteist usaldusväärselt
+    // (eriti mobiilis), mistõttu leht jäi nähtavalt keset lehte "hüppama".
+    // Lülitame sujuva kerimise selleks hetkeks otse välja.
     const upcomingIndex = items.findIndex((it) => !it.isPast)
     const targetIndex = upcomingIndex === -1 ? 0 : upcomingIndex
     const targetEl = itemRefs.current[targetIndex]
     if (targetEl) {
+      const root = document.documentElement
+      const prevScrollBehavior = root.style.scrollBehavior
+      root.style.scrollBehavior = 'auto'
+
       const scrollX = window.scrollX
       const scrollY = window.scrollY
       targetEl.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'auto' })
       window.scrollTo(scrollX, scrollY)
+
+      root.style.scrollBehavior = prevScrollBehavior
     }
     updateActive()
     // Ainult esimesel renderdusel: items ei muutu selle komponendi elueas.
