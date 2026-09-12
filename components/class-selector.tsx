@@ -192,7 +192,7 @@ export function ClassSelector() {
           sizes="100vw"
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/70" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-black/45" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/10 to-black/40" />
       </div>
 
