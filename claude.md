@@ -110,6 +110,8 @@ Veeb peab koondama:
 
 \- Kõikidel 3D-vaadetel peab olema 2D või tekstiline alternatiiv.
 
+\- Fondid: ainult Barlow Condensed (display) ja Barlow (kehatekst, sildid, ajad). Ära kasuta Interit ega IBM Plex Monot, kuigi brändiraamat neid nimetab — see otsus on tehtud teadlikult.
+
 
 
 \## Koodi kvaliteet
