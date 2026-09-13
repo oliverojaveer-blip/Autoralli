@@ -163,7 +163,14 @@ export type RallyLynxStageResults = {
 
 export type RallyLynxRetirement = {
   competitorId: string
-  afterPoint?: string | null
+  /**
+   * Kiiruskatse ID, mille ajal/järel katkestati. `null` tähistab
+   * väljaspool kiiruskatset tehtud otsust (nt COC-i teade). Spec.json
+   * nimetab seda välja `afterPoint`-iks, aga päris API tagastab
+   * `stageId` — tugineme päris kujule.
+   */
+  stageId?: string | null
+  disqualified?: boolean
   reason: string
   retiredAt?: string | null
   rejoined: boolean

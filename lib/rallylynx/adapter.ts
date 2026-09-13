@@ -22,6 +22,25 @@ import type {
   RallyLynxStageResults,
 } from './types'
 
+/**
+ * Kiiruskatse ID -> selle järjekorranumber (0-põhine, sõidujärjekorras).
+ * Kasutame katkestanud ekipaažide väljafiltreerimiseks: keegi, kes
+ * katkestas katsel X, ei tohi ilmuda liidrina üldarvestuses pärast katset
+ * X, isegi kui RallyLynx'i enda `/classification` seda (bug) ei filtreeri.
+ */
+function stageOrderMap(itinerary: RallyLynxItinerary): Map<string, number> {
+  const order = new Map<string, number>()
+  let index = 0
+  for (const day of itinerary.days) {
+    for (const item of day.items) {
+      if (item.type !== 'stage') continue
+      order.set(item.id, index)
+      index += 1
+    }
+  }
+  return order
+}
+
 export type ResultStatus = 'unofficial' | 'provisional' | 'official' | 'amended'
 
 /** RallyLynx staatused, mida API tegelikult tagastab, saidi enda sõnavarasse. */
@@ -194,7 +213,7 @@ export async function fetchRallyClassification(
   options: { afterStage?: string } = {},
 ): Promise<RallyClassificationView> {
   const { eventId, apiKey } = credentials
-  const [{ event, competitors, itinerary }, classificationRes] = await Promise.all([
+  const [{ event, competitors, itinerary }, classificationRes, retirementsRes] = await Promise.all([
     fetchCore(credentials),
     rallyLynxFetch<RallyLynxClassification>({
       eventId,
@@ -202,22 +221,46 @@ export async function fetchRallyClassification(
       path: '/classification',
       searchParams: { afterStage: options.afterStage },
     }),
+    rallyLynxFetch<{ retirements: RallyLynxRetirement[] }>({ eventId, apiKey, path: '/retirements' }),
   ])
 
-  if (!classificationRes) {
+  if (!classificationRes || !retirementsRes) {
     throw new Error('RallyLynx tagastas ootamatult 304 esmasel päringul.')
   }
 
   const findCompetitor = competitorLookup(competitors)
-  const totalStageCount = itinerary.days.reduce(
-    (total, day) => total + day.items.filter((item) => item.type === 'stage').length,
-    0,
-  )
+  const stageOrder = stageOrderMap(itinerary)
+  const totalStageCount = stageOrder.size
   const classification = classificationRes.data
 
-  const rows: RallyResultRow[] = classification.entries.map((entry) => {
+  // RallyLynx'i `/classification` ei filtreeri katkestanud ekipaaže enne
+  // sihtkatset välja — nende `totalTimeMs` sisaldab ainult läbitud katseid,
+  // mistõttu nad võivad näida (valesti) liidrina. Katkestame nad siin ise,
+  // kui nende katkestuskatse on jõudnud/möödas vaadeldavast piirist.
+  const cutoffIndex = options.afterStage
+    ? (stageOrder.get(options.afterStage) ?? totalStageCount - 1)
+    : totalStageCount - 1
+
+  const retiredByCutoff = new Set<string>()
+  for (const r of retirementsRes.data.retirements) {
+    if (!r.stageId) continue
+    const retirementIndex = stageOrder.get(r.stageId)
+    if (retirementIndex !== undefined && retirementIndex <= cutoffIndex) {
+      retiredByCutoff.add(r.competitorId)
+    }
+  }
+
+  const validEntries = classification.entries.filter((e) => !retiredByCutoff.has(e.competitorId))
+  const retiredEntries = classification.entries.filter((e) => retiredByCutoff.has(e.competitorId))
+
+  // RallyLynx'i endised positsioonid/vahed arvestasid katkestanuid liidritena,
+  // seega tuleb need pärast väljafiltreerimist ise ümber arvutada.
+  validEntries.sort((a, b) => a.totalTimeMs - b.totalTimeMs)
+  const leaderTotal = validEntries[0]?.totalTimeMs ?? 0
+
+  const rows: RallyResultRow[] = validEntries.map((entry, index) => {
     const competitor = findCompetitor(entry.competitorId)
-    const overall = entry.rankings.overall ?? null
+    const prevTotal = index > 0 ? validEntries[index - 1].totalTimeMs : entry.totalTimeMs
 
     return {
       competitorId: entry.competitorId,
@@ -227,27 +270,37 @@ export async function fetchRallyClassification(
       vehicle: competitor?.vehicle ?? '—',
       entrant: competitor?.entrant ?? null,
       classIds: competitor?.classes ?? [],
-      position: overall?.position ?? null,
+      position: index + 1,
       stageTimeMs: entry.stageTimeMs,
       penaltyTimeMs: entry.penaltyTimeMs,
       totalTimeMs: entry.totalTimeMs,
-      gapToLeaderMs: overall?.gapToLeaderMs ?? null,
-      diffToPrevMs: overall?.diffToPrevMs ?? null,
+      gapToLeaderMs: entry.totalTimeMs - leaderTotal,
+      diffToPrevMs: entry.totalTimeMs - prevTotal,
     }
   })
 
-  rows.sort((a, b) => (a.position ?? Infinity) - (b.position ?? Infinity))
-
-  const notClassified: RallyNotClassifiedRow[] = classification.notClassified.map((nc) => {
-    const competitor = findCompetitor(nc.competitorId)
-    return {
-      competitorId: nc.competitorId,
-      number: competitor?.number ?? '—',
-      driver: competitor?.driver.name ?? 'Teadmata',
-      coDriver: competitor?.coDriver.name ?? 'Teadmata',
-      reason: nc.reason,
-    }
-  })
+  const notClassified: RallyNotClassifiedRow[] = [
+    ...classification.notClassified.map((nc) => {
+      const competitor = findCompetitor(nc.competitorId)
+      return {
+        competitorId: nc.competitorId,
+        number: competitor?.number ?? '—',
+        driver: competitor?.driver.name ?? 'Teadmata',
+        coDriver: competitor?.coDriver.name ?? 'Teadmata',
+        reason: nc.reason,
+      }
+    }),
+    ...retiredEntries.map((entry) => {
+      const competitor = findCompetitor(entry.competitorId)
+      return {
+        competitorId: entry.competitorId,
+        number: entry.number,
+        driver: competitor?.driver.name ?? 'Teadmata',
+        coDriver: competitor?.coDriver.name ?? 'Teadmata',
+        reason: 'retired',
+      }
+    }),
+  ]
 
   return {
     eventId: event.id,
@@ -490,7 +543,7 @@ export type RallyRetirementRow = {
   coDriver: string
   vehicle: string
   reason: string
-  afterPointLabel: string
+  stageLabel: string
   retiredAt: string | null
 }
 
@@ -523,7 +576,7 @@ export async function fetchRallyRetirements(
       coDriver: competitor?.coDriver.name ?? 'Teadmata',
       vehicle: competitor?.vehicle ?? '—',
       reason: r.reason,
-      afterPointLabel: r.afterPoint ? itineraryItemLabel(findItineraryItem(r.afterPoint)) : '—',
+      stageLabel: r.stageId ? itineraryItemLabel(findItineraryItem(r.stageId)) : '—',
       retiredAt: r.retiredAt ?? null,
     }
   })

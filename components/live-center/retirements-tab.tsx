@@ -25,7 +25,7 @@ export function RetirementsTab() {
                     <th className="w-14 px-3 py-2.5">Nr</th>
                     <th className="px-3 py-2.5">Ekipaaž</th>
                     <th className="px-3 py-2.5">Auto</th>
-                    <th className="px-3 py-2.5">Pärast</th>
+                    <th className="px-3 py-2.5">Katse</th>
                     <th className="px-3 py-2.5">Põhjus</th>
                   </tr>
                 </thead>
@@ -38,7 +38,7 @@ export function RetirementsTab() {
                         <p className="text-xs text-slate">{row.coDriver}</p>
                       </td>
                       <td className="px-3 py-2.5 text-slate">{row.vehicle}</td>
-                      <td className="px-3 py-2.5 text-slate">{row.afterPointLabel}</td>
+                      <td className="px-3 py-2.5 text-slate">{row.stageLabel}</td>
                       <td className="px-3 py-2.5 text-black">{row.reason}</td>
                     </tr>
                   ))}
@@ -53,7 +53,7 @@ export function RetirementsTab() {
                     #{row.number} {row.driver} <span className="font-normal text-slate">/ {row.coDriver}</span>
                   </p>
                   <p className="mt-1 text-xs text-slate">{row.vehicle}</p>
-                  <p className="mt-1 text-xs text-slate">Pärast: {row.afterPointLabel}</p>
+                  <p className="mt-1 text-xs text-slate">Katse: {row.stageLabel}</p>
                   <p className="mt-1 text-sm text-black">{row.reason}</p>
                 </li>
               ))}
