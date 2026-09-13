@@ -4,6 +4,7 @@ import { CalendarBlank, MapPin } from '@phosphor-icons/react/dist/ssr'
 import { SiteNav } from '@/components/site-nav'
 import { SiteFooter } from '@/components/site-footer'
 import { LiveCountdown } from '@/components/live-countdown'
+import { LiveCenter } from '@/components/live-center/live-center'
 import { formatRange, nextEvent } from '@/lib/events'
 
 export const metadata: Metadata = {
@@ -118,6 +119,20 @@ export default function OtsePage() {
         <section className="bg-black py-16 lg:py-20">
           <div className="shell">
             <LiveCountdown eventName={event.name} targetTime={event.startsAt} status="scheduled" />
+          </div>
+        </section>
+
+        <section className="border-b border-line py-16 lg:py-20">
+          <div className="shell">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue">
+              Live Center
+            </p>
+            <h2 className="mt-3 font-display text-3xl font-bold uppercase leading-tight text-black sm:text-4xl">
+              Otsetulemused
+            </h2>
+            <div className="mt-10">
+              <LiveCenter />
+            </div>
           </div>
         </section>
       </main>
