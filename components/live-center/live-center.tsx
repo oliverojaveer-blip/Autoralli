@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { OverallTab } from './overall-tab'
 import { StageTimesTab } from './stage-times-tab'
 import { SplitTimesTab } from './split-times-tab'
@@ -49,6 +50,17 @@ export function LiveCenter() {
 
       <div className="mt-8">
         <active.Component />
+      </div>
+
+      <div className="mt-10 flex items-center justify-end gap-2 border-t border-line pt-6 text-xs text-slate">
+        <span>Andmed:</span>
+        <Image
+          src="/images/partners/rallylynx-logo.png"
+          alt="RallyLynx"
+          width={1024}
+          height={551}
+          className="h-4 w-auto object-contain opacity-70"
+        />
       </div>
     </div>
   )

@@ -179,7 +179,7 @@ export function ClassSelector() {
 
   return (
     <section
-      className="relative flex min-h-[100svh] flex-col overflow-hidden bg-black text-white"
+      className="relative flex min-h-[100svh] flex-col overflow-hidden bg-black text-white [clip-path:inset(0)]"
       aria-roledescription="carousel"
       aria-label="Võistlusklasside valija"
     >

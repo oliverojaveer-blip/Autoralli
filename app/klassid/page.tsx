@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { SiteNav } from '@/components/site-nav'
 import { ClassSelector } from '@/components/class-selector'
 import { SiteFooter } from '@/components/site-footer'
+import { TyreSection } from '@/components/tyre-section'
 
 export const metadata: Metadata = {
   title: 'Võistlusklassid',
@@ -17,6 +18,7 @@ export default function KlassidPage() {
         <Suspense fallback={null}>
           <ClassSelector />
         </Suspense>
+        <TyreSection />
       </main>
       <SiteFooter />
     </>

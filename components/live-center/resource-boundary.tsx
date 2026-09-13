@@ -22,7 +22,7 @@ export function ResourceBoundary<T>({
   const message = state.kind === 'error' ? state.message : MESSAGE[state.kind]
 
   return (
-    <div className="border border-line bg-mist px-6 py-16 text-center">
+    <div className="rounded-md border border-line bg-gradient-to-b from-white to-mist px-6 py-16 text-center">
       <p className="text-sm font-semibold text-slate">{message}</p>
     </div>
   )

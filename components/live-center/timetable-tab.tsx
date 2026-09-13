@@ -38,7 +38,7 @@ export function TimetableTab() {
               <h3 className="mb-3 font-display text-lg font-bold uppercase capitalize text-black">
                 {formatDate(day.date)}
               </h3>
-              <ol className="flex flex-col divide-y divide-line border border-line">
+              <ol className="flex flex-col divide-y divide-line overflow-hidden rounded-md border border-line">
                 {day.items.map((item) => (
                   <li
                     key={item.id}

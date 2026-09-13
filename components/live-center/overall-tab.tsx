@@ -85,15 +85,15 @@ function OverallTable({
             RallyLynx · uuendatud {formatUpdatedAt(overall.updatedAt)}
           </p>
         </div>
-        <span className="inline-flex items-center border border-blue px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.06em] text-blue">
+        <span className="inline-flex items-center rounded-md border border-blue bg-gradient-to-b from-blue/[0.04] to-blue/[0.18] px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.06em] text-blue">
           {STATUS_LABEL[overall.status]}
         </span>
       </div>
 
-      <div className="hidden overflow-x-auto border border-line sm:block">
+      <div className="hidden overflow-x-auto rounded-md border border-line sm:block">
         <table className="w-full min-w-[560px] border-collapse text-sm">
           <thead>
-            <tr className="border-b border-line bg-mist text-left text-xs font-semibold uppercase tracking-[0.08em] text-slate">
+            <tr className="border-b border-line bg-gradient-to-b from-white to-mist text-left text-xs font-semibold uppercase tracking-[0.08em] text-slate">
               <th className="w-10 px-3 py-2.5">Koht</th>
               <th className="w-14 px-2 py-2.5">Nr</th>
               <th className="px-3 py-2.5">Ekipaaž</th>
@@ -104,7 +104,12 @@ function OverallTable({
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={row.competitorId} className="border-b border-line last:border-0">
+              <tr
+                key={row.competitorId}
+                className={`border-b border-line last:border-0 ${
+                  row.position === 1 ? 'bg-gradient-to-b from-blue/[0.03] to-blue/[0.10]' : ''
+                }`}
+              >
                 <td className="px-3 py-2.5 font-display text-base font-bold text-black">
                   {row.position ?? '—'}
                 </td>
@@ -128,7 +133,14 @@ function OverallTable({
 
       <ul className="flex flex-col gap-2 sm:hidden">
         {rows.map((row) => (
-          <li key={row.competitorId} className="border border-line p-3">
+          <li
+            key={row.competitorId}
+            className={`rounded-md border bg-gradient-to-b p-3 ${
+              row.position === 1
+                ? 'border-blue from-blue/[0.04] to-blue/[0.18]'
+                : 'border-line from-white to-mist'
+            }`}
+          >
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-baseline gap-2.5">
                 <span className="font-display text-xl font-bold leading-none text-black">

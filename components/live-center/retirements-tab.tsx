@@ -13,15 +13,15 @@ export function RetirementsTab() {
     <ResourceBoundary state={state}>
       {(rows) =>
         rows.length === 0 ? (
-          <div className="border border-line bg-mist px-6 py-16 text-center">
+          <div className="rounded-md border border-line bg-gradient-to-b from-white to-mist px-6 py-16 text-center">
             <p className="text-sm font-semibold text-slate">Katkestamisi ei ole registreeritud.</p>
           </div>
         ) : (
           <div>
-            <div className="hidden overflow-x-auto border border-line sm:block">
+            <div className="hidden overflow-x-auto rounded-md border border-line sm:block">
               <table className="w-full min-w-[560px] border-collapse text-sm">
                 <thead>
-                  <tr className="border-b border-line bg-mist text-left text-xs font-semibold uppercase tracking-[0.08em] text-slate">
+                  <tr className="border-b border-line bg-gradient-to-b from-white to-mist text-left text-xs font-semibold uppercase tracking-[0.08em] text-slate">
                     <th className="w-14 px-3 py-2.5">Nr</th>
                     <th className="px-3 py-2.5">Ekipaaž</th>
                     <th className="px-3 py-2.5">Auto</th>
@@ -48,7 +48,7 @@ export function RetirementsTab() {
 
             <ul className="flex flex-col gap-2 sm:hidden">
               {rows.map((row) => (
-                <li key={row.competitorId} className="border border-line p-3">
+                <li key={row.competitorId} className="rounded-md border border-line bg-gradient-to-b from-white to-mist p-3">
                   <p className="font-semibold text-black">
                     #{row.number} {row.driver} <span className="font-normal text-slate">/ {row.coDriver}</span>
                   </p>

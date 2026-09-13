@@ -14,10 +14,10 @@ export function StageWinnersTab() {
     <ResourceBoundary state={state}>
       {(rows) => (
         <div>
-          <div className="hidden overflow-x-auto border border-line sm:block">
+          <div className="hidden overflow-x-auto rounded-md border border-line sm:block">
             <table className="w-full min-w-[560px] border-collapse text-sm">
               <thead>
-                <tr className="border-b border-line bg-mist text-left text-xs font-semibold uppercase tracking-[0.08em] text-slate">
+                <tr className="border-b border-line bg-gradient-to-b from-white to-mist text-left text-xs font-semibold uppercase tracking-[0.08em] text-slate">
                   <th className="px-3 py-2.5">Kiiruskatse</th>
                   <th className="px-3 py-2.5">Võitja</th>
                   <th className="px-3 py-2.5 text-right">Aeg</th>
@@ -56,7 +56,7 @@ export function StageWinnersTab() {
 
           <ul className="flex flex-col gap-2 sm:hidden">
             {rows.map((row) => (
-              <li key={row.stageId} className="border border-line p-3">
+              <li key={row.stageId} className="rounded-md border border-line bg-gradient-to-b from-white to-mist p-3">
                 <div className="flex items-start justify-between gap-3">
                   <p className="font-semibold text-black">{row.code}</p>
                   <span className="whitespace-nowrap font-mono text-sm font-bold tabular-nums text-black">

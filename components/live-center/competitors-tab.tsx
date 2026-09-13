@@ -27,10 +27,10 @@ export function CompetitorsTab() {
                   <SeriesFilter series={event.series} activeId={seriesId} onChange={setSeriesId} />
                 </div>
 
-                <div className="mt-8 hidden overflow-x-auto border border-line sm:block">
+                <div className="mt-8 hidden overflow-x-auto rounded-md border border-line sm:block">
                   <table className="w-full min-w-[640px] border-collapse text-sm">
                     <thead>
-                      <tr className="border-b border-line bg-mist text-left text-xs font-semibold uppercase tracking-[0.08em] text-slate">
+                      <tr className="border-b border-line bg-gradient-to-b from-white to-mist text-left text-xs font-semibold uppercase tracking-[0.08em] text-slate">
                         <th className="w-14 px-3 py-2.5">Nr</th>
                         <th className="px-3 py-2.5">Ekipaaž</th>
                         <th className="px-3 py-2.5">Auto</th>
@@ -55,7 +55,7 @@ export function CompetitorsTab() {
 
                 <ul className="mt-8 flex flex-col gap-2 sm:hidden">
                   {rows.map((row) => (
-                    <li key={row.competitorId} className="border border-line p-3">
+                    <li key={row.competitorId} className="rounded-md border border-line bg-gradient-to-b from-white to-mist p-3">
                       <p className="font-semibold text-black">
                         #{row.number} {row.driver}{' '}
                         <span className="font-normal text-slate">/ {row.coDriver}</span>

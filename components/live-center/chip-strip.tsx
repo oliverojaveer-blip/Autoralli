@@ -14,7 +14,7 @@ export function ChipStrip({ children, ariaLabel }: { children: ReactNode; ariaLa
     <div
       role="tablist"
       aria-label={ariaLabel}
-      className="flex snap-x snap-mandatory gap-2 overflow-x-auto scroll-smooth pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="flex snap-x snap-mandatory overflow-x-auto scroll-smooth pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
       {children}
     </div>
@@ -36,8 +36,10 @@ export function Chip({
       role="tab"
       aria-selected={active}
       onClick={onClick}
-      className={`min-h-[44px] shrink-0 snap-start whitespace-nowrap border px-4 py-2.5 text-xs font-bold uppercase tracking-[0.06em] transition-colors ${
-        active ? 'border-blue bg-blue text-white' : 'border-line text-slate'
+      className={`min-h-[44px] shrink-0 snap-start whitespace-nowrap rounded-md border bg-gradient-to-b px-4 py-2.5 text-xs font-bold uppercase tracking-[0.06em] transition-colors ${
+        active
+          ? 'border-blue from-blue/[0.04] to-blue/[0.18] text-blue'
+          : 'border-transparent from-transparent to-transparent text-slate hover:from-white hover:to-mist hover:text-black [[aria-selected=true]+&]:border-line/70 [&:has(+[aria-selected=true])]:border-line/70'
       }`}
     >
       {children}

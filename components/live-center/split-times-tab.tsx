@@ -44,7 +44,7 @@ export function SplitTimesTab() {
 function SplitTimesTable({ stage }: { stage: RallyStageResultsView }) {
   if (stage.splitDistances.length === 0) {
     return (
-      <div className="border border-line bg-mist px-6 py-16 text-center">
+      <div className="rounded-md border border-line bg-gradient-to-b from-white to-mist px-6 py-16 text-center">
         <p className="text-sm font-semibold text-slate">
           Sellel kiiruskatsel ei ole vahepunkte.
         </p>
@@ -59,10 +59,10 @@ function SplitTimesTable({ stage }: { stage: RallyStageResultsView }) {
         {stage.name ? ` — ${stage.name}` : ''}
       </p>
 
-      <div className="hidden overflow-x-auto border border-line sm:block">
+      <div className="hidden overflow-x-auto rounded-md border border-line sm:block">
         <table className="w-full min-w-[640px] border-collapse text-sm">
           <thead>
-            <tr className="border-b border-line bg-mist text-left text-xs font-semibold uppercase tracking-[0.08em] text-slate">
+            <tr className="border-b border-line bg-gradient-to-b from-white to-mist text-left text-xs font-semibold uppercase tracking-[0.08em] text-slate">
               <th className="w-10 px-3 py-2.5">Koht</th>
               <th className="px-3 py-2.5">Ekipaaž</th>
               {stage.splitDistances.map((split) => (
@@ -75,7 +75,12 @@ function SplitTimesTable({ stage }: { stage: RallyStageResultsView }) {
           </thead>
           <tbody>
             {stage.rows.map((row) => (
-              <tr key={row.competitorId} className="border-b border-line last:border-0">
+              <tr
+                key={row.competitorId}
+                className={`border-b border-line last:border-0 ${
+                  row.position === 1 ? 'bg-gradient-to-b from-blue/[0.03] to-blue/[0.10]' : ''
+                }`}
+              >
                 <td className="px-3 py-2.5 font-display text-base font-bold text-black">
                   {row.position ?? '—'}
                 </td>
@@ -115,7 +120,14 @@ function SplitTimesTable({ stage }: { stage: RallyStageResultsView }) {
 
       <ul className="flex flex-col gap-2 sm:hidden">
         {stage.rows.map((row) => (
-          <li key={row.competitorId} className="border border-line p-3">
+          <li
+            key={row.competitorId}
+            className={`rounded-md border bg-gradient-to-b p-3 ${
+              row.position === 1
+                ? 'border-blue from-blue/[0.04] to-blue/[0.18]'
+                : 'border-line from-white to-mist'
+            }`}
+          >
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-baseline gap-2.5">
                 <span className="font-display text-xl font-bold leading-none text-black">
