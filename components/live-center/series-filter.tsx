@@ -1,6 +1,7 @@
 'use client'
 
 import type { RallySeriesView } from '@/lib/rallylynx/adapter'
+import { ChipStrip, Chip } from './chip-strip'
 
 export const ALL_SERIES = 'all'
 
@@ -16,32 +17,17 @@ export function SeriesFilter({
   return (
     <div>
       <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate">Sari</p>
-      <div role="tablist" aria-label="Vali sari" className="mt-2 flex flex-wrap gap-2">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={activeId === ALL_SERIES}
-          onClick={() => onChange(ALL_SERIES)}
-          className={`border px-3 py-1.5 text-xs font-bold uppercase tracking-[0.06em] transition-colors ${
-            activeId === ALL_SERIES ? 'border-blue bg-blue text-white' : 'border-line text-slate'
-          }`}
-        >
-          Kõik
-        </button>
-        {series.map((s) => (
-          <button
-            key={s.id}
-            type="button"
-            role="tab"
-            aria-selected={activeId === s.id}
-            onClick={() => onChange(s.id)}
-            className={`border px-3 py-1.5 text-xs font-bold uppercase tracking-[0.06em] transition-colors ${
-              activeId === s.id ? 'border-blue bg-blue text-white' : 'border-line text-slate'
-            }`}
-          >
-            {s.name}
-          </button>
-        ))}
+      <div className="mt-2">
+        <ChipStrip ariaLabel="Vali sari">
+          <Chip active={activeId === ALL_SERIES} onClick={() => onChange(ALL_SERIES)}>
+            Kõik
+          </Chip>
+          {series.map((s) => (
+            <Chip key={s.id} active={activeId === s.id} onClick={() => onChange(s.id)}>
+              {s.name}
+            </Chip>
+          ))}
+        </ChipStrip>
       </div>
     </div>
   )
