@@ -39,9 +39,15 @@
     @apply mx-auto w-full max-w-shell px-5 sm:px-8;
   }
 
-  /* Ajavõtunumbrid: võrdse laiusega, et number ei hüppaks loendamisel. */
-  .tnum {
+  /* Ajavõtunumbrid: võrdse laiusega, et number ei hüppaks loendamisel.
+     `.font-mono` pole enam päris monospace (vt tailwind.config), seega
+     saab sama joonduse siit. */
+  .tnum,
+  .font-mono {
     font-variant-numeric: tabular-nums;
+  }
+  .font-mono {
+    font-weight: 500;
   }
 
   /* Brändi 19° lõige: pildikaadrid, aktiivsed vahekaardid, esiletõstetud kutsed. */

@@ -31,7 +31,9 @@ const config: Config = {
       fontFamily: {
         display: ['var(--font-display)', ...defaultTheme.fontFamily.sans],
         sans: ['var(--font-sans)', ...defaultTheme.fontFamily.sans],
-        mono: ['var(--font-mono)', ...defaultTheme.fontFamily.mono],
+        // `font-mono` jääb utiliidina alles (ajad, sildid), aga jookseb
+        // Barlow' tabelnumbritel — eraldi monospace-fonti enam ei laeta.
+        mono: ['var(--font-sans)', ...defaultTheme.fontFamily.sans],
       },
       maxWidth: {
         shell: '1400px',
