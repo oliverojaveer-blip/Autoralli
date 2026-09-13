@@ -16,7 +16,7 @@ import { CaretLeft, CaretRight } from '@phosphor-icons/react/dist/ssr'
 import { RALLY_CLASSES, type RallyClass } from '@/lib/rally-classes'
 
 const SWIPE_THRESHOLD = 40
-const TRANSITION_MS = 650
+const TRANSITION_MS = 420
 const EASE = [0.22, 1, 0.36, 1] as const
 
 function useNeighborPreload(list: RallyClass[], index: number) {
@@ -183,7 +183,7 @@ export function ClassSelector() {
       aria-roledescription="carousel"
       aria-label="Võistlusklasside valija"
     >
-      <div className="absolute inset-0">
+      <div className="fixed inset-0 z-0 pointer-events-none">
         <Image
           src="/assets/rally-classes/rally-selector-background.webp"
           alt=""
@@ -200,7 +200,7 @@ export function ClassSelector() {
         {announcement}
       </div>
 
-      <div className="shell relative flex flex-1 flex-col justify-center py-24 lg:py-16">
+      <div className="shell relative z-10 flex flex-1 flex-col justify-center py-24 lg:py-16">
         <div className="grid gap-10 lg:grid-cols-12 lg:items-center">
           <div className="order-2 lg:order-1 lg:col-span-4">
             <AnimatePresence mode="wait" custom={direction} initial={false}>
@@ -211,7 +211,7 @@ export function ClassSelector() {
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ duration: reduced ? 0.15 : 0.45, ease: EASE }}
+                transition={{ duration: reduced ? 0.15 : TRANSITION_MS / 1000, ease: EASE }}
               >
                 <p className="font-mono text-xs uppercase tracking-[0.22em] text-blue">
                   Võistlusklass
@@ -275,7 +275,7 @@ export function ClassSelector() {
               {active.imageWebp ? (
                 <div
                   aria-hidden="true"
-                  className="absolute bottom-[6%] left-1/2 h-[10%] w-[70%] -translate-x-1/2 rounded-[50%] bg-black/60 blur-2xl"
+                  className="absolute bottom-[1%] left-1/2 h-[7%] w-[60%] -translate-x-1/2 rounded-[50%] bg-black/70 blur-xl"
                 />
               ) : null}
               <AnimatePresence mode="popLayout" custom={direction} initial={false}>
@@ -296,7 +296,7 @@ export function ClassSelector() {
                       fill
                       priority={index === initialIndex}
                       sizes="(min-width: 1024px) 60vw, 92vw"
-                      className="object-contain drop-shadow-[0_30px_40px_rgba(0,0,0,0.55)]"
+                      className="object-contain object-bottom drop-shadow-[0_20px_24px_rgba(0,0,0,0.55)]"
                     />
                   ) : (
                     <div className="flex h-full w-full flex-col items-center justify-center gap-5 border border-white/10 bg-white/[0.02]">
@@ -340,7 +340,7 @@ export function ClassSelector() {
         role="tablist"
         aria-label="Vali võistlusklass"
         onKeyDown={onRailKeyDown}
-        className="scrollbar-none relative flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-4 sm:px-8 lg:justify-center"
+        className="scrollbar-none relative z-10 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-4 sm:px-8 lg:justify-center"
       >
         {list.map((item, i) => {
           const isActive = i === index
