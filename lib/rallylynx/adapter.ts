@@ -250,8 +250,31 @@ export async function fetchRallyClassification(
     }
   }
 
-  const validEntries = classification.entries.filter((e) => !retiredByCutoff.has(e.competitorId))
-  const retiredEntries = classification.entries.filter((e) => retiredByCutoff.has(e.competitorId))
+  // Mõned ekipaažid (nt ainult sprintralli sõitnud) ei ilmu RallyLynx'i
+  // /retirements loendis (nad ei "katkestanud" — nende võistlus lihtsalt
+  // lõppes varem), aga nende `totalTimeMs` jääb üldklassifikatsiooni
+  // /classification vastusesse seisma vana väärtusega. Tuvastame need,
+  // kontrollides, kas ekipaažil on ajad olemas kõigi katsete kohta, mis
+  // selleks hetkeks (cutoffIndex'ini) juba läbitud on — kui mõni katse
+  // puudub, ei ole ekipaaž enam üldarvestuses aktiivne.
+  const requiredStageIds = classification.completedStages.filter((stageId) => {
+    const order = stageOrder.get(stageId)
+    return order !== undefined && order <= cutoffIndex
+  })
+
+  const droppedOutByCutoff = new Set<string>()
+  for (const entry of classification.entries) {
+    if (retiredByCutoff.has(entry.competitorId)) continue
+    const missesStage = requiredStageIds.some((stageId) => {
+      const stage = entry.stages[stageId]
+      return !stage || stage.durationMs === null
+    })
+    if (missesStage) droppedOutByCutoff.add(entry.competitorId)
+  }
+
+  const excludedByCutoff = new Set<string>([...retiredByCutoff, ...droppedOutByCutoff])
+  const validEntries = classification.entries.filter((e) => !excludedByCutoff.has(e.competitorId))
+  const retiredEntries = classification.entries.filter((e) => excludedByCutoff.has(e.competitorId))
 
   // RallyLynx'i endised positsioonid/vahed arvestasid katkestanuid liidritena,
   // seega tuleb need pärast väljafiltreerimist ise ümber arvutada.
@@ -297,7 +320,7 @@ export async function fetchRallyClassification(
         number: entry.number,
         driver: competitor?.driver.name ?? 'Teadmata',
         coDriver: competitor?.coDriver.name ?? 'Teadmata',
-        reason: 'retired',
+        reason: retiredByCutoff.has(entry.competitorId) ? 'retired' : 'incomplete',
       }
     }),
   ]
