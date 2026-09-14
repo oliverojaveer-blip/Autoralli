@@ -2,6 +2,7 @@ import { defineConfig } from 'sanity'
 import { structureTool } from 'sanity/structure'
 import { liveBlogSchemas } from './sanity/schemas/live-blog'
 import { apiVersion, dataset, projectId } from './sanity/env'
+import { anonymiseAuthorAction, deleteAuthorAction } from './sanity/actions/author-actions'
 
 /**
  * Sanity Studio — toimetuse liides, mis elab saidi sees teel /studio
@@ -44,6 +45,12 @@ export default defineConfig({
     }),
   ],
   schema: { types: liveBlogSchemas },
+  document: {
+    // Autoril on kaskaad-kustutamine ja GDPR-anonümiseerimine; vaikimisi
+    // "Delete" jääks postituste viidete taha kinni.
+    actions: (prev, { schemaType }) =>
+      schemaType === 'blogAuthor' ? [...prev, anonymiseAuthorAction, deleteAuthorAction] : prev,
+  },
   // Studio kasutab sama API versiooni, mis sait.
   apiVersion,
 })
