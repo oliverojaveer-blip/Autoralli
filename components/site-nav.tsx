@@ -88,8 +88,9 @@ function FlagTab({
 }
 
 /**
- * Üks päis kogu saidile, tume nagu ajavõtutabloo. Täislogo desktopil,
- * lipumärk üksi kitsal ekraanil (brändiraamat 04/Logo small-screen rule).
+ * Üks päis kogu saidile, tume nagu ajavõtutabloo. Täislogo igal
+ * ekraanil, lipumärk üksi alles alla 320 px (brändiraamat 04/Logo
+ * small-screen rule).
  * Põhilingid on lipulõikega vahekaardid, mis jätkavad logo ruudustiku
  * 19° kallet.
  */
@@ -141,13 +142,15 @@ export function SiteNav() {
           className="flex shrink-0 items-center focus-visible:ring-offset-black"
           aria-label={t.common.homeAria}
         >
+          {/* Täislogo mahub ka telefonile (24 px kõrgusel ~200 px lai);
+              lipumärk üksi jääb ainult alla 320 px (brändiraamatu small-screen rule). */}
           <Image
             src="/images/erc-flag-white.png"
             alt="Estonian Rally Championship"
             width={120}
             height={112}
             priority
-            className="h-7 w-auto sm:hidden"
+            className="h-7 w-auto min-[320px]:hidden"
           />
           <Image
             src="/images/erc-logo-white.png"
@@ -155,7 +158,7 @@ export function SiteNav() {
             width={340}
             height={40}
             priority
-            className="hidden h-7 w-auto sm:block lg:h-8"
+            className="hidden h-6 w-auto min-[320px]:block sm:h-7 lg:h-8"
           />
         </Link>
 
