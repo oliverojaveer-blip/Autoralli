@@ -1,11 +1,4 @@
-import type { ResultStatus } from '@/lib/rallylynx/adapter'
-
-export const STATUS_LABEL: Record<ResultStatus, string> = {
-  unofficial: 'Mitteametlik',
-  provisional: 'Esialgne',
-  official: 'Ametlik',
-  amended: 'Muudetud',
-}
+import { getDictionary, type Locale } from '@/lib/i18n'
 
 /** Millisekundid -> "h:mm:ss,d" (rallis tavapärane ajavorming). */
 export function formatDuration(ms: number): string {
@@ -30,9 +23,9 @@ export function formatGap(ms: number | null): string {
   return `+${formatDuration(ms)}`
 }
 
-export function formatUpdatedAt(iso: string | null): string {
-  if (!iso) return 'teadmata'
-  return new Date(iso).toLocaleString('et-EE', {
+export function formatUpdatedAt(iso: string | null, locale: Locale): string {
+  if (!iso) return getDictionary(locale).common.unknown
+  return new Date(iso).toLocaleString(getDictionary(locale).dates.intlTag, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -41,9 +34,9 @@ export function formatUpdatedAt(iso: string | null): string {
   })
 }
 
-export function formatDate(iso: string | null): string {
+export function formatDate(iso: string | null, locale: Locale): string {
   if (!iso) return '—'
-  return new Date(iso).toLocaleDateString('et-EE', {
+  return new Date(iso).toLocaleDateString(getDictionary(locale).dates.intlTag, {
     weekday: 'long',
     day: '2-digit',
     month: '2-digit',

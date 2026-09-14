@@ -15,12 +15,15 @@ const TICKS = Array.from({ length: TICK_COUNT }, (_, i) => {
   const outer = 47
   const inner = isMajor ? 39 : 43
   const rad = (angle * Math.PI) / 180
+  // Ümardame, sest serveri ja brauseri trigonomeetria erineb viimases
+  // kümnendkohas ja tekitaks muidu hydration mismatch'i.
+  const r = (n: number) => Math.round(n * 1000) / 1000
   return {
     key: i,
-    x1: 50 + inner * Math.cos(rad),
-    y1: 50 + inner * Math.sin(rad),
-    x2: 50 + outer * Math.cos(rad),
-    y2: 50 + outer * Math.sin(rad),
+    x1: r(50 + inner * Math.cos(rad)),
+    y1: r(50 + inner * Math.sin(rad)),
+    x2: r(50 + outer * Math.cos(rad)),
+    y2: r(50 + outer * Math.sin(rad)),
     isMajor,
   }
 })

@@ -13,7 +13,9 @@ import Image from 'next/image'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { CaretLeft, CaretRight } from '@phosphor-icons/react/dist/ssr'
-import { RALLY_CLASSES, type RallyClass } from '@/lib/rally-classes'
+import { RALLY_CLASSES, type ClassFact, type RallyClass } from '@/lib/rally-classes'
+import { pick } from '@/lib/i18n'
+import { useLocale, useT } from './locale-provider'
 
 const SWIPE_THRESHOLD = 40
 const TRANSITION_MS = 420
@@ -34,6 +36,9 @@ function useNeighborPreload(list: RallyClass[], index: number) {
 export function ClassSelector() {
   const list = RALLY_CLASSES
   const reduced = useReducedMotion()
+  const t = useT()
+  const locale = useLocale()
+  const factValue = (fact: ClassFact) => ('years' in fact ? t.classes.years(fact.years) : pick(fact.value, locale))
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -102,8 +107,8 @@ export function ClassSelector() {
   }, [active.id])
 
   useEffect(() => {
-    setAnnouncement(`Valitud klass: ${active.name}`)
-  }, [active])
+    setAnnouncement(t.classes.selected(pick(active.name, locale)))
+  }, [active, t, locale])
 
   const onRailKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     switch (event.key) {
@@ -181,7 +186,7 @@ export function ClassSelector() {
     <section
       className="relative flex min-h-[100svh] flex-col overflow-hidden bg-black text-white [clip-path:inset(0)]"
       aria-roledescription="carousel"
-      aria-label="Võistlusklasside valija"
+      aria-label={t.classes.carouselAria}
     >
       <div className="fixed inset-0 z-0 pointer-events-none">
         <Image
@@ -214,17 +219,19 @@ export function ClassSelector() {
                 transition={{ duration: reduced ? 0.15 : TRANSITION_MS / 1000, ease: EASE }}
               >
                 <p className="font-mono text-xs uppercase tracking-[0.22em] text-blue">
-                  Võistlusklass
-                  {active.eyebrow ? <span className="ml-3 text-white/50">{active.eyebrow}</span> : null}
+                  {t.classes.eyebrow}
+                  <span className="ml-3 text-white/50">
+                    {active.series === 'emv' ? t.classes.seriesEmv : t.classes.seriesCup}
+                  </span>
                 </p>
                 <h1 className="mt-4 font-display text-5xl font-bold uppercase leading-[0.95] sm:text-6xl">
                   {active.shortName}
                 </h1>
                 <p className="mt-2 font-display text-2xl font-bold uppercase leading-tight text-blue sm:text-3xl">
-                  {active.name}
+                  {pick(active.name, locale)}
                 </p>
                 <p className="mt-5 max-w-[46ch] text-base leading-relaxed text-white/70">
-                  {active.description}
+                  {pick(active.description, locale)}
                 </p>
 
                 {active.facts.length > 0 ? (
@@ -232,9 +239,9 @@ export function ClassSelector() {
                     {active.facts.map((fact) => (
                       <div key={fact.label}>
                         <dt className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">
-                          {fact.label}
+                          {t.classes[fact.label]}
                         </dt>
-                        <dd className="mt-1 font-mono text-sm text-white">{fact.value}</dd>
+                        <dd className="mt-1 font-mono text-sm text-white">{factValue(fact)}</dd>
                       </div>
                     ))}
                   </dl>
@@ -248,7 +255,7 @@ export function ClassSelector() {
                       rel="noopener noreferrer"
                       className="inline-flex items-center border border-white/40 px-5 py-3 text-xs font-bold uppercase tracking-[0.08em] text-white transition-colors hover:border-white"
                     >
-                      Tehnilised tingimused
+                      {t.classes.technicalRules}
                     </a>
                   ) : null}
                   {active.resultsUrl ? (
@@ -258,7 +265,7 @@ export function ClassSelector() {
                       rel="noopener noreferrer"
                       className="inline-flex items-center bg-blue px-5 py-3 text-xs font-bold uppercase tracking-[0.08em] text-white transition-opacity hover:opacity-90"
                     >
-                      Tulemused
+                      {t.classes.results}
                     </a>
                   ) : null}
                 </div>
@@ -292,7 +299,7 @@ export function ClassSelector() {
                   {active.imageWebp ? (
                     <Image
                       src={active.imageWebp}
-                      alt={active.imageAlt ?? active.name}
+                      alt={active.imageAlt ? pick(active.imageAlt, locale) : pick(active.name, locale)}
                       fill
                       priority={index === initialIndex}
                       sizes="(min-width: 1024px) 60vw, 92vw"
@@ -308,7 +315,7 @@ export function ClassSelector() {
                         {active.shortName}
                       </span>
                       <span className="font-mono text-xs uppercase tracking-[0.2em] text-white/35">
-                        Foto lisandub
+                        {t.classes.photoPending}
                       </span>
                     </div>
                   )}
@@ -320,7 +327,7 @@ export function ClassSelector() {
               type="button"
               onClick={prev}
               className="absolute left-1 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center bg-black/50 text-white backdrop-blur transition-colors hover:bg-black/70 sm:left-4"
-              aria-label="Eelmine klass"
+              aria-label={t.classes.previousClass}
             >
               <CaretLeft size={20} weight="bold" />
             </button>
@@ -328,7 +335,7 @@ export function ClassSelector() {
               type="button"
               onClick={next}
               className="absolute right-1 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center bg-black/50 text-white backdrop-blur transition-colors hover:bg-black/70 sm:right-4"
-              aria-label="Järgmine klass"
+              aria-label={t.classes.nextClass}
             >
               <CaretRight size={20} weight="bold" />
             </button>
@@ -338,7 +345,7 @@ export function ClassSelector() {
 
       <div
         role="tablist"
-        aria-label="Vali võistlusklass"
+        aria-label={t.classes.chooseClass}
         onKeyDown={onRailKeyDown}
         className="scrollbar-none relative z-10 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-4 sm:px-8 lg:justify-center"
       >

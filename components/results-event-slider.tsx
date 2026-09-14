@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowSquareOut } from '@phosphor-icons/react/dist/ssr'
 import { byDate, nextEvent, type RallyEvent } from '@/lib/events'
+import { useT } from './locale-provider'
 
 function TileContent({ event, isActive }: { event: RallyEvent; isActive: boolean }) {
   return (
@@ -52,6 +53,7 @@ function ResultsTile({
   isActive: boolean
   setRef: (el: HTMLLIElement | null) => void
 }) {
+  const t = useT()
   const scaleClass = isActive ? 'scale-110' : 'scale-100'
 
   if (!event.websiteUrl) {
@@ -80,7 +82,7 @@ function ResultsTile({
         target="_blank"
         rel="noopener noreferrer"
         className="group relative block"
-        aria-label={`Ava ${event.name} tulemused (avaneb uues aknas)`}
+        aria-label={t.results.openEventResults(event.name)}
       >
         <TileContent event={event} isActive={isActive} />
         <span className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded bg-blue text-white opacity-0 transition-opacity group-hover:opacity-100">

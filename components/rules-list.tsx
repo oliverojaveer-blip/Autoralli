@@ -1,7 +1,8 @@
 import { ArrowSquareOut, FileDoc, FilePdf } from '@phosphor-icons/react/dist/ssr'
 import type { RuleDocument } from '@/lib/rules-documents'
+import { pick, type Locale } from '@/lib/i18n'
 
-export function RulesList({ documents }: { documents: RuleDocument[] }) {
+export function RulesList({ documents, locale }: { documents: RuleDocument[]; locale: Locale }) {
   return (
     <ul className="divide-y divide-line border-t border-line">
       {documents.map((doc) => (
@@ -17,7 +18,7 @@ export function RulesList({ documents }: { documents: RuleDocument[] }) {
             ) : (
               <FilePdf size={26} weight="duotone" className="shrink-0 text-blue" />
             )}
-            <span className="flex-1 text-base font-semibold text-black">{doc.label}</span>
+            <span className="flex-1 text-base font-semibold text-black">{pick(doc.label, locale)}</span>
             <span className="hidden font-mono text-[11px] uppercase tracking-widest text-slate sm:inline">
               {doc.fileType}
             </span>

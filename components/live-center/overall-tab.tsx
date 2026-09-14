@@ -6,7 +6,8 @@ import { useRallyLynxResource } from './use-rallylynx-resource'
 import { ResourceBoundary } from './resource-boundary'
 import { SeriesFilter, ALL_SERIES, classIdsForSeries } from './series-filter'
 import { StageSelector } from './stage-selector'
-import { STATUS_LABEL, formatDuration, formatGap, formatUpdatedAt } from './format'
+import { formatDuration, formatGap, formatUpdatedAt } from './format'
+import { useLocale, useT } from '../locale-provider'
 
 /** Üldarvestus pärast valitud kiiruskatset (RallyLynx `?afterStage=`). */
 export function OverallTab() {
@@ -69,6 +70,8 @@ function OverallTable({
   stageCode: string | null
   allowedClassIds: Set<string> | null
 }) {
+  const t = useT()
+  const locale = useLocale()
   const rows = allowedClassIds
     ? overall.rows.filter((row) => row.classIds.some((id) => allowedClassIds.has(id)))
     : overall.rows
@@ -78,15 +81,15 @@ function OverallTable({
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <div>
           <h3 className="font-display text-lg font-bold uppercase text-black">
-            Üldarvestus{stageCode ? ` — pärast ${stageCode}` : ''}
+            {stageCode ? t.live.overallAfter(stageCode) : t.live.overall}
           </h3>
           <p className="mt-1 text-xs text-slate">
-            Läbitud {overall.completedStageCount}/{overall.totalStageCount} kiiruskatset · allikas
-            RallyLynx · uuendatud {formatUpdatedAt(overall.updatedAt)}
+            {t.live.completedStages(overall.completedStageCount, overall.totalStageCount)} ·{' '}
+            {t.live.sourceRallyLynx} · {t.live.updated} {formatUpdatedAt(overall.updatedAt, locale)}
           </p>
         </div>
         <span className="inline-flex items-center rounded-md border border-blue bg-gradient-to-b from-blue/[0.04] to-blue/[0.18] px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.06em] text-blue">
-          {STATUS_LABEL[overall.status]}
+          {t.live.status[overall.status]}
         </span>
       </div>
 
@@ -94,12 +97,12 @@ function OverallTable({
         <table className="w-full min-w-[560px] border-collapse text-sm">
           <thead>
             <tr className="border-b border-line bg-gradient-to-b from-white to-mist text-left text-xs font-semibold uppercase tracking-[0.08em] text-slate">
-              <th className="w-10 px-3 py-2.5">Koht</th>
-              <th className="w-14 px-2 py-2.5">Nr</th>
-              <th className="px-3 py-2.5">Ekipaaž</th>
-              <th className="px-3 py-2.5">Auto</th>
-              <th className="px-3 py-2.5 text-right">Kokku</th>
-              <th className="px-3 py-2.5 text-right">Vahe</th>
+              <th className="w-10 px-3 py-2.5">{t.live.th.position}</th>
+              <th className="w-14 px-2 py-2.5">{t.live.th.number}</th>
+              <th className="px-3 py-2.5">{t.live.th.crew}</th>
+              <th className="px-3 py-2.5">{t.live.th.car}</th>
+              <th className="px-3 py-2.5 text-right">{t.live.th.total}</th>
+              <th className="px-3 py-2.5 text-right">{t.live.th.gap}</th>
             </tr>
           </thead>
           <tbody>

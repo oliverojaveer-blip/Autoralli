@@ -5,8 +5,10 @@ import type { RallyCompetitorRow, RallyEventOverview } from '@/lib/rallylynx/ada
 import { useRallyLynxResource } from './use-rallylynx-resource'
 import { ResourceBoundary } from './resource-boundary'
 import { SeriesFilter, ALL_SERIES, classIdsForSeries } from './series-filter'
+import { useT } from '../locale-provider'
 
 export function CompetitorsTab() {
+  const t = useT()
   const eventState = useRallyLynxResource<RallyEventOverview>('/api/rallylynx/event')
   const competitorsState = useRallyLynxResource<RallyCompetitorRow[]>('/api/rallylynx/competitors')
   const [seriesId, setSeriesId] = useState(ALL_SERIES)
@@ -31,10 +33,10 @@ export function CompetitorsTab() {
                   <table className="w-full min-w-[640px] border-collapse text-sm">
                     <thead>
                       <tr className="border-b border-line bg-gradient-to-b from-white to-mist text-left text-xs font-semibold uppercase tracking-[0.08em] text-slate">
-                        <th className="w-14 px-3 py-2.5">Nr</th>
-                        <th className="px-3 py-2.5">Ekipaaž</th>
-                        <th className="px-3 py-2.5">Auto</th>
-                        <th className="px-3 py-2.5">Meeskond</th>
+                        <th className="w-14 px-3 py-2.5">{t.live.th.number}</th>
+                        <th className="px-3 py-2.5">{t.live.th.crew}</th>
+                        <th className="px-3 py-2.5">{t.live.th.car}</th>
+                        <th className="px-3 py-2.5">{t.live.th.team}</th>
                       </tr>
                     </thead>
                     <tbody>

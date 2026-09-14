@@ -2,6 +2,7 @@
 
 import type { RallySeriesView } from '@/lib/rallylynx/adapter'
 import { ChipStrip, Chip } from './chip-strip'
+import { useT } from '../locale-provider'
 
 export const ALL_SERIES = 'all'
 
@@ -14,13 +15,14 @@ export function SeriesFilter({
   activeId: string
   onChange: (id: string) => void
 }) {
+  const t = useT()
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate">Sari</p>
+      <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate">{t.live.series}</p>
       <div className="mt-2">
-        <ChipStrip ariaLabel="Vali sari">
+        <ChipStrip ariaLabel={t.live.chooseSeries}>
           <Chip active={activeId === ALL_SERIES} onClick={() => onChange(ALL_SERIES)}>
-            Kõik
+            {t.common.all}
           </Chip>
           {series.map((s) => (
             <Chip key={s.id} active={activeId === s.id} onClick={() => onChange(s.id)}>

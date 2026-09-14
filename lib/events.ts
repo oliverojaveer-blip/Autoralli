@@ -9,8 +9,13 @@
  *
  *  claude.md nõue: igal võistlusel on üks püsiv ID, mida kasutavad kalender,
  *  osalejad, tulemused ja uudised.
+ *
+ *  Nimed on pärisnimed (ei tõlgita); asukoht ja fotode alt-tekst on
+ *  kakskeelsed (`LocalizedString`, vt lib/i18n.ts `pick`).
  * ============================================================================
  */
+
+import type { LocalizedString } from './i18n'
 
 export type EventStatus = 'tulemas' | 'live' | 'lopetatud'
 
@@ -21,7 +26,7 @@ export type RallyEvent = {
   /** ISO 8601, sest sortimine ja countdown vajavad üheselt mõistetavat vormingut. */
   startsAt: string
   endsAt: string
-  location: string
+  location: LocalizedString
   series: string
   status: EventStatus
   /**
@@ -30,7 +35,7 @@ export type RallyEvent = {
    */
   logo?: { src: string; alt: string; width: number; height: number }
   /** Päris EMV-etappide fotod (kaust `Fotod/`), kalendrikaardi taustaks. */
-  photo: { src: string; alt: string }
+  photo: { src: string; alt: LocalizedString }
   /**
    * Valikuline, ürituse enda ametlik koduleht. Kui olemas, viib kalendri-
    * kaart otse sinna (uues aknas), mitte saidi enda platsihoidja lehele.
@@ -44,17 +49,17 @@ export const EVENTS: RallyEvent[] = [
     name: 'Alūksnes Rallijs',
     startsAt: '2026-01-23T09:00:00+02:00',
     endsAt: '2026-01-24T17:00:00+02:00',
-    location: 'Alūksne, Läti',
+    location: { et: 'Alūksne, Läti', en: 'Alūksne, Latvia' },
     series: 'EMV',
     status: 'lopetatud',
-    photo: { src: '/images/action-speed.jpg', alt: 'Rallisõiduk kiirel läbisõidul' },
+    photo: { src: '/images/action-speed.jpg', alt: { et: 'Rallisõiduk kiirel läbisõidul', en: 'Rally car at full speed' } },
   },
   {
     id: 'ev-2026-02',
     name: 'Saaremaa Sprintralli',
     startsAt: '2026-05-09T09:00:00+03:00',
     endsAt: '2026-05-09T18:00:00+03:00',
-    location: 'Pihtla, Saaremaa',
+    location: { et: 'Pihtla, Saaremaa', en: 'Pihtla, Saaremaa' },
     series: 'EMV',
     status: 'lopetatud',
     logo: {
@@ -63,14 +68,14 @@ export const EVENTS: RallyEvent[] = [
       width: 292,
       height: 182,
     },
-    photo: { src: '/images/hero-rally.jpg', alt: 'Rallisõiduk Eesti kiiruskatsel' },
+    photo: { src: '/images/hero-rally.jpg', alt: { et: 'Rallisõiduk Eesti kiiruskatsel', en: 'Rally car on an Estonian special stage' } },
   },
   {
     id: 'ev-2026-03',
     name: 'Jyväskylä Ralli',
     startsAt: '2026-06-12T09:00:00+03:00',
     endsAt: '2026-06-13T17:00:00+03:00',
-    location: 'Jyväskylä, Soome',
+    location: { et: 'Jyväskylä, Soome', en: 'Jyväskylä, Finland' },
     series: 'EMV',
     status: 'lopetatud',
     logo: {
@@ -79,14 +84,14 @@ export const EVENTS: RallyEvent[] = [
       width: 812,
       height: 606,
     },
-    photo: { src: '/images/action-rain.jpg', alt: 'Rallisõiduk vihmases kiiruskatses' },
+    photo: { src: '/images/action-rain.jpg', alt: { et: 'Rallisõiduk vihmases kiiruskatses', en: 'Rally car on a rainy special stage' } },
   },
   {
     id: 'ev-2026-04',
     name: 'Lõuna-Eesti Ralli',
     startsAt: '2026-07-03T09:00:00+03:00',
     endsAt: '2026-07-04T17:00:00+03:00',
-    location: 'Võru',
+    location: { et: 'Võru', en: 'Võru' },
     series: 'EMV',
     status: 'lopetatud',
     logo: {
@@ -95,7 +100,7 @@ export const EVENTS: RallyEvent[] = [
       width: 1998,
       height: 1248,
     },
-    photo: { src: '/images/action-crowd.jpg', alt: 'Pealtvaatajad jälgimas rallisõidukit' },
+    photo: { src: '/images/action-crowd.jpg', alt: { et: 'Pealtvaatajad jälgimas rallisõidukit', en: 'Spectators watching a rally car' } },
     websiteUrl: 'https://lounaeestirally.ee/',
   },
   {
@@ -103,7 +108,7 @@ export const EVENTS: RallyEvent[] = [
     name: 'Paide Rally',
     startsAt: '2026-08-21T09:00:00+03:00',
     endsAt: '2026-08-22T17:00:00+03:00',
-    location: 'Paide',
+    location: { et: 'Paide', en: 'Paide' },
     series: 'EMV',
     status: 'lopetatud',
     logo: {
@@ -112,7 +117,7 @@ export const EVENTS: RallyEvent[] = [
       width: 1011,
       height: 375,
     },
-    photo: { src: '/images/action-speed.jpg', alt: 'Rallisõiduk kiirel läbisõidul' },
+    photo: { src: '/images/action-speed.jpg', alt: { et: 'Rallisõiduk kiirel läbisõidul', en: 'Rally car at full speed' } },
     websiteUrl: 'https://paiderally.ee/',
   },
   {
@@ -120,7 +125,7 @@ export const EVENTS: RallyEvent[] = [
     name: 'Saaremaa Ralli',
     startsAt: '2026-10-09T09:00:00+03:00',
     endsAt: '2026-10-10T17:00:00+03:00',
-    location: 'Kuressaare',
+    location: { et: 'Kuressaare', en: 'Kuressaare' },
     series: 'EMV',
     status: 'tulemas',
     logo: {
@@ -129,51 +134,10 @@ export const EVENTS: RallyEvent[] = [
       width: 1996,
       height: 964,
     },
-    photo: { src: '/images/hero-rally.jpg', alt: 'Rallisõiduk Eesti kiiruskatsel' },
+    photo: { src: '/images/hero-rally.jpg', alt: { et: 'Rallisõiduk Eesti kiiruskatsel', en: 'Rally car on an Estonian special stage' } },
     websiteUrl: 'https://saaremaarally.eu/',
   },
 ]
-
-const MONTHS_SHORT = [
-  'jaan',
-  'veebr',
-  'märts',
-  'apr',
-  'mai',
-  'juuni',
-  'juuli',
-  'aug',
-  'sept',
-  'okt',
-  'nov',
-  'dets',
-]
-
-/**
- * Vormindab kuupäevavahemiku eesti keeles ilma Intl-ita, et server ja klient
- * annaksid kindlasti sama tulemuse (Intl locale andmed erinevad keskkonniti
- * ja tekitavad hydration mismatch'i).
- */
-export function formatRange(startsAt: string, endsAt: string): string {
-  const start = new Date(startsAt)
-  const end = new Date(endsAt)
-
-  const startDay = start.getUTCDate()
-  const endDay = end.getUTCDate()
-  const startMonth = MONTHS_SHORT[start.getUTCMonth()]
-  const endMonth = MONTHS_SHORT[end.getUTCMonth()]
-  const year = end.getUTCFullYear()
-
-  if (startDay === endDay && startMonth === endMonth) {
-    return `${startDay}. ${endMonth} ${year}`
-  }
-
-  if (startMonth === endMonth) {
-    return `${startDay}. kuni ${endDay}. ${endMonth} ${year}`
-  }
-
-  return `${startDay}. ${startMonth} kuni ${endDay}. ${endMonth} ${year}`
-}
 
 /**
  * Lähim tulevane (või parasjagu käimasolev) võistlus. Kui hooaeg on läbi,

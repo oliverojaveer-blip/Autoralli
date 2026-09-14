@@ -4,8 +4,10 @@ import type { RallyStageWinnerRow } from '@/lib/rallylynx/adapter'
 import { useRallyLynxResource } from './use-rallylynx-resource'
 import { ResourceBoundary } from './resource-boundary'
 import { formatDuration } from './format'
+import { useT } from '../locale-provider'
 
 export function StageWinnersTab() {
+  const t = useT()
   const state = useRallyLynxResource<RallyStageWinnerRow[]>('/api/rallylynx/stage-winners', {
     pollMs: 30_000,
   })
@@ -18,9 +20,9 @@ export function StageWinnersTab() {
             <table className="w-full min-w-[560px] border-collapse text-sm">
               <thead>
                 <tr className="border-b border-line bg-gradient-to-b from-white to-mist text-left text-xs font-semibold uppercase tracking-[0.08em] text-slate">
-                  <th className="px-3 py-2.5">Kiiruskatse</th>
-                  <th className="px-3 py-2.5">Võitja</th>
-                  <th className="px-3 py-2.5 text-right">Aeg</th>
+                  <th className="px-3 py-2.5">{t.live.stage}</th>
+                  <th className="px-3 py-2.5">{t.live.th.winner}</th>
+                  <th className="px-3 py-2.5 text-right">{t.live.th.time}</th>
                 </tr>
               </thead>
               <tbody>

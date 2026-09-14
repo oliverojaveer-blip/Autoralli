@@ -4,27 +4,10 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, ArrowSquareOut, CaretLeft, CaretRight } from '@phosphor-icons/react/dist/ssr'
-import { formatRange, type RallyEvent } from '@/lib/events'
-
-const MONTHS_SHORT = [
-  'JAAN',
-  'VEEBR',
-  'MÄRTS',
-  'APR',
-  'MAI',
-  'JUUNI',
-  'JUULI',
-  'AUG',
-  'SEPT',
-  'OKT',
-  'NOV',
-  'DETS',
-]
-
-function dateChip(startsAt: string) {
-  const d = new Date(startsAt)
-  return `${d.getUTCDate()}. ${MONTHS_SHORT[d.getUTCMonth()]}`
-}
+import type { RallyEvent } from '@/lib/events'
+import { formatDateChip, formatDateRange } from '@/lib/dates'
+import { pick } from '@/lib/i18n'
+import { useHref, useLocale, useT } from './locale-provider'
 
 type Item = { event: RallyEvent; isPast: boolean }
 
@@ -41,6 +24,9 @@ type Item = { event: RallyEvent; isPast: boolean }
  * viimast kaarti tegelikult keskele kerida, mitte jääda serva taha kinni.
  */
 export function CalendarScroller({ items }: { items: Item[] }) {
+  const t = useT()
+  const locale = useLocale()
+  const href = useHref()
   const trackRef = useRef<HTMLUListElement>(null)
   const itemRefs = useRef<Array<HTMLLIElement | null>>([])
   const startSpacerRef = useRef<HTMLLIElement>(null)
@@ -169,14 +155,14 @@ export function CalendarScroller({ items }: { items: Item[] }) {
               }`}
             >
               <Link
-                href={event.websiteUrl ?? `/kalender/${event.id}`}
+                href={event.websiteUrl ?? href(`/kalender/${event.id}`)}
                 target={event.websiteUrl ? '_blank' : undefined}
                 rel={event.websiteUrl ? 'noopener noreferrer' : undefined}
                 className="group relative block aspect-[3/4] overflow-hidden bg-black"
               >
                 <Image
                   src={event.photo.src}
-                  alt={event.photo.alt}
+                  alt={pick(event.photo.alt, locale)}
                   fill
                   sizes="(min-width: 640px) 320px, 78vw"
                   className={`object-cover transition-transform duration-500 ease-forward group-hover:scale-105 ${
@@ -188,11 +174,11 @@ export function CalendarScroller({ items }: { items: Item[] }) {
                 <div className="absolute inset-x-0 top-0 flex items-start justify-between p-4">
                   {isPast ? (
                     <span className="bg-white/15 px-2.5 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-widest text-white/80 backdrop-blur">
-                      Toimunud
+                      {t.calendar.past}
                     </span>
                   ) : (
                     <span className="bg-black/70 px-2.5 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-widest text-white backdrop-blur">
-                      {dateChip(event.startsAt)}
+                      {formatDateChip(event.startsAt, locale)}
                     </span>
                   )}
                   <span className="bg-blue px-2.5 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-widest text-white">
@@ -214,18 +200,18 @@ export function CalendarScroller({ items }: { items: Item[] }) {
 
                 <div className="absolute inset-x-0 bottom-0 p-5">
                   <p className="font-mono text-xs text-white/70">
-                    {formatRange(event.startsAt, event.endsAt)}
+                    {formatDateRange(event.startsAt, event.endsAt, locale)}
                   </p>
                   <h3 className="mt-1.5 font-display text-2xl font-bold uppercase leading-none text-white">
                     {event.name}
                   </h3>
-                  <p className="mt-1.5 text-sm text-white/70">{event.location}</p>
+                  <p className="mt-1.5 text-sm text-white/70">{pick(event.location, locale)}</p>
                   <span className="mt-4 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.1em] text-white">
                     {event.websiteUrl
-                      ? 'Ava koduleht'
+                      ? t.calendar.openWebsite
                       : isPast
-                        ? 'Vaata tulemusi'
-                        : 'Vaata võistlust'}
+                        ? t.calendar.viewResults
+                        : t.calendar.viewEvent}
                     {event.websiteUrl ? (
                       <ArrowSquareOut size={14} weight="bold" />
                     ) : (
@@ -250,7 +236,7 @@ export function CalendarScroller({ items }: { items: Item[] }) {
           type="button"
           onClick={() => scrollBy(-1)}
           className="flex h-11 w-11 items-center justify-center border border-line text-black transition-colors hover:border-blue hover:text-blue"
-          aria-label="Keri kalender vasakule"
+          aria-label={t.calendar.scrollLeft}
         >
           <CaretLeft size={18} weight="bold" />
         </button>
@@ -258,7 +244,7 @@ export function CalendarScroller({ items }: { items: Item[] }) {
           type="button"
           onClick={() => scrollBy(1)}
           className="flex h-11 w-11 items-center justify-center border border-line text-black transition-colors hover:border-blue hover:text-blue"
-          aria-label="Keri kalender paremale"
+          aria-label={t.calendar.scrollRight}
         >
           <CaretRight size={18} weight="bold" />
         </button>

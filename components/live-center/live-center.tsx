@@ -11,16 +11,17 @@ import { CompetitorsTab } from './competitors-tab'
 import { PenaltiesTab } from './penalties-tab'
 import { RetirementsTab } from './retirements-tab'
 import { ChipStrip, Chip } from './chip-strip'
+import { useT } from '../locale-provider'
 
 const TABS = [
-  { id: 'overall', label: 'Üldarvestus', Component: OverallTab },
-  { id: 'stage-times', label: 'Katseajad', Component: StageTimesTab },
-  { id: 'splits', label: 'Vaheajad', Component: SplitTimesTab },
-  { id: 'winners', label: 'Katsevõitjad', Component: StageWinnersTab },
-  { id: 'timetable', label: 'Ajatabel', Component: TimetableTab },
-  { id: 'start-list', label: 'Startinimekiri', Component: CompetitorsTab },
-  { id: 'penalties', label: 'Karistused', Component: PenaltiesTab },
-  { id: 'retirements', label: 'Katkestajad', Component: RetirementsTab },
+  { id: 'overall', labelKey: 'overall', Component: OverallTab },
+  { id: 'stage-times', labelKey: 'stageTimes', Component: StageTimesTab },
+  { id: 'splits', labelKey: 'splits', Component: SplitTimesTab },
+  { id: 'winners', labelKey: 'winners', Component: StageWinnersTab },
+  { id: 'timetable', labelKey: 'timetable', Component: TimetableTab },
+  { id: 'start-list', labelKey: 'startList', Component: CompetitorsTab },
+  { id: 'penalties', labelKey: 'penalties', Component: PenaltiesTab },
+  { id: 'retirements', labelKey: 'retirements', Component: RetirementsTab },
 ] as const
 
 /**
@@ -33,16 +34,17 @@ const TABS = [
  * palju kiirem kui mitme rea vahel skaneerimine.
  */
 export function LiveCenter() {
+  const t = useT()
   const [activeId, setActiveId] = useState<(typeof TABS)[number]['id']>('overall')
-  const active = TABS.find((t) => t.id === activeId) ?? TABS[0]
+  const active = TABS.find((tab) => tab.id === activeId) ?? TABS[0]
 
   return (
     <div>
       <div className="border-b border-line pb-6">
-        <ChipStrip ariaLabel="Vali vaade">
+        <ChipStrip ariaLabel={t.live.chooseView}>
           {TABS.map((tab) => (
             <Chip key={tab.id} active={tab.id === activeId} onClick={() => setActiveId(tab.id)}>
-              {tab.label}
+              {t.live.tabs[tab.labelKey]}
             </Chip>
           ))}
         </ChipStrip>
@@ -53,7 +55,7 @@ export function LiveCenter() {
       </div>
 
       <div className="mt-10 flex items-center justify-end gap-2 border-t border-line pt-6 text-xs text-slate">
-        <span>Andmed:</span>
+        <span>{t.common.dataSource}</span>
         <Image
           src="/images/partners/rallylynx-logo.png"
           alt="RallyLynx"

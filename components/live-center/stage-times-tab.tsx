@@ -6,7 +6,8 @@ import { useRallyLynxResource } from './use-rallylynx-resource'
 import { ResourceBoundary } from './resource-boundary'
 import { SeriesFilter, ALL_SERIES, classIdsForSeries } from './series-filter'
 import { StageSelector } from './stage-selector'
-import { STATUS_LABEL, formatDuration, formatGap } from './format'
+import { formatDuration, formatGap } from './format'
+import { useT } from '../locale-provider'
 
 /** Ühe valitud kiiruskatse tulemus (koht/aeg/vahe, ilma vahepunktideta). */
 export function StageTimesTab() {
@@ -63,6 +64,7 @@ function StageTimesTable({
   stage: RallyStageResultsView
   allowedClassIds: Set<string> | null
 }) {
+  const t = useT()
   const rows = allowedClassIds
     ? stage.rows.filter((row) => row.classIds.some((id) => allowedClassIds.has(id)))
     : stage.rows
@@ -80,7 +82,7 @@ function StageTimesTable({
           ) : null}
         </div>
         <span className="inline-flex items-center rounded-md border border-blue bg-gradient-to-b from-blue/[0.04] to-blue/[0.18] px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.06em] text-blue">
-          {STATUS_LABEL[stage.status]}
+          {t.live.status[stage.status]}
         </span>
       </div>
 
@@ -88,12 +90,12 @@ function StageTimesTable({
         <table className="w-full min-w-[560px] border-collapse text-sm">
           <thead>
             <tr className="border-b border-line bg-gradient-to-b from-white to-mist text-left text-xs font-semibold uppercase tracking-[0.08em] text-slate">
-              <th className="w-10 px-3 py-2.5">Koht</th>
-              <th className="w-14 px-2 py-2.5">Nr</th>
-              <th className="px-3 py-2.5">Ekipaaž</th>
-              <th className="px-3 py-2.5">Auto</th>
-              <th className="px-3 py-2.5 text-right">Aeg</th>
-              <th className="px-3 py-2.5 text-right">Vahe</th>
+              <th className="w-10 px-3 py-2.5">{t.live.th.position}</th>
+              <th className="w-14 px-2 py-2.5">{t.live.th.number}</th>
+              <th className="px-3 py-2.5">{t.live.th.crew}</th>
+              <th className="px-3 py-2.5">{t.live.th.car}</th>
+              <th className="px-3 py-2.5 text-right">{t.live.th.time}</th>
+              <th className="px-3 py-2.5 text-right">{t.live.th.gap}</th>
             </tr>
           </thead>
           <tbody>
@@ -114,7 +116,7 @@ function StageTimesTable({
                 </td>
                 <td className="px-3 py-2.5 text-slate">{row.vehicle}</td>
                 <td className="px-3 py-2.5 text-right font-mono tabular-nums text-black">
-                  {row.onStage ? 'katsel' : row.durationMs !== null ? formatDuration(row.durationMs) : '—'}
+                  {row.onStage ? t.live.onStage : row.durationMs !== null ? formatDuration(row.durationMs) : '—'}
                 </td>
                 <td className="px-3 py-2.5 text-right font-mono tabular-nums text-blue">
                   {formatGap(row.gapToLeaderMs)}
@@ -148,7 +150,7 @@ function StageTimesTable({
                 </div>
               </div>
               <span className="whitespace-nowrap font-mono text-base font-bold tabular-nums text-black">
-                {row.onStage ? 'katsel' : row.durationMs !== null ? formatDuration(row.durationMs) : '—'}
+                {row.onStage ? t.live.onStage : row.durationMs !== null ? formatDuration(row.durationMs) : '—'}
               </span>
             </div>
             <p className="mt-1.5 text-xs text-slate">{row.vehicle}</p>

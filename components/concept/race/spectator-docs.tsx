@@ -1,4 +1,5 @@
 import { ArrowRight, FilePdf } from '@phosphor-icons/react/dist/ssr'
+import Link from 'next/link'
 import { DOCUMENTS, SPECTATOR } from '@/lib/concept/fixtures'
 import { Rise } from '../motion'
 
@@ -33,7 +34,7 @@ export function SpectatorDocs() {
           <div id="dokumendid" className="scroll-mt-28">
             <div className="flex items-baseline justify-between gap-4">
               <h2 className="text-2xl font-bold tracking-headline sm:text-3xl">Ametlikud dokumendid</h2>
-              <a href="/dokumendid" className="shrink-0 text-sm font-semibold text-muted transition-colors duration-150 hover:text-chalk">Kõik</a>
+              <Link href="/dokumendid" className="shrink-0 text-sm font-semibold text-muted transition-colors duration-150 hover:text-chalk">Kõik</Link>
             </div>
             <ol className="mt-6 border-t border-line">
               {DOCUMENTS.map((d) => (

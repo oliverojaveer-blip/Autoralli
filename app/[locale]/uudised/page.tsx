@@ -5,21 +5,30 @@ import { ArrowUpRight, CaretLeft, CaretRight } from '@phosphor-icons/react/dist/
 import { SiteNav } from '@/components/site-nav'
 import { SiteFooter } from '@/components/site-footer'
 import { fetchRallyNews, type NewsArticleView, type NewsPageView } from '@/lib/autosport/adapter'
+import { formatLongDate } from '@/lib/dates'
+import { getDictionary, localizedHref, type Dictionary, type Locale } from '@/lib/i18n'
+import { pageMetadata, toLocale, type LocaleParams } from '@/lib/page-metadata'
 
-export const metadata: Metadata = {
-  title: 'Uudised',
-  description: 'Eesti autoralli uudised — Eesti Autospordi Liidu ralliuudised ühes kohas.',
+/** Elav sisu (RallyLynx / autosport.ee, ?leht=) — ei tohi ehitusaegselt kivistuda. */
+export const dynamic = 'force-dynamic'
+
+export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
+  const locale = toLocale((await params).locale)
+  const t = getDictionary(locale)
+  return pageMetadata(locale, '/uudised', t.news.metaTitle, t.news.metaDescription)
 }
 
-const MONTHS = ['jaan', 'veebr', 'märts', 'apr', 'mai', 'juuni', 'juuli', 'aug', 'sept', 'okt', 'nov', 'dets']
-
-/** Ilma Intl-ita, et server ja klient annaksid sama tulemuse (vt lib/events.ts). */
-function formatDate(iso: string): string {
-  const d = new Date(iso)
-  return `${d.getUTCDate()}. ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`
-}
-
-function ArticleCard({ article, featured = false }: { article: NewsArticleView; featured?: boolean }) {
+function ArticleCard({
+  article,
+  locale,
+  t,
+  featured = false,
+}: {
+  article: NewsArticleView
+  locale: Locale
+  t: Dictionary
+  featured?: boolean
+}) {
   return (
     <a
       href={article.url}
@@ -51,7 +60,7 @@ function ArticleCard({ article, featured = false }: { article: NewsArticleView; 
 
       <div className={`flex flex-1 flex-col p-5 ${featured ? 'lg:justify-center lg:p-8' : ''}`}>
         <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-slate">
-          {formatDate(article.publishedAt)}
+          {formatLongDate(article.publishedAt, locale)}
         </p>
         <h2
           className={`mt-2 font-display font-bold uppercase leading-[1.05] text-black transition-colors group-hover:text-blue ${
@@ -66,7 +75,7 @@ function ArticleCard({ article, featured = false }: { article: NewsArticleView; 
           </p>
         ) : null}
         <span className="mt-auto inline-flex items-center gap-1.5 pt-4 text-xs font-bold uppercase tracking-[0.08em] text-blue">
-          Loe autosport.ee-s
+          {t.news.readOnAutosport}
           <ArrowUpRight size={14} weight="bold" />
         </span>
       </div>
@@ -74,19 +83,20 @@ function ArticleCard({ article, featured = false }: { article: NewsArticleView; 
   )
 }
 
-function Pagination({ news }: { news: NewsPageView }) {
+function Pagination({ news, locale, t }: { news: NewsPageView; locale: Locale; t: Dictionary }) {
   if (news.totalPages <= 1) return null
+  const base = localizedHref(locale, '/uudised')
   const prev = news.page > 1 ? news.page - 1 : null
   const next = news.page < news.totalPages ? news.page + 1 : null
   const linkClass =
     'inline-flex min-h-[44px] items-center gap-2 rounded-md border px-4 text-xs font-bold uppercase tracking-[0.08em] transition-colors'
 
   return (
-    <nav aria-label="Uudiste lehed" className="mt-12 flex items-center justify-between gap-4">
+    <nav aria-label={t.news.pagesAria} className="mt-12 flex items-center justify-between gap-4">
       {prev ? (
-        <Link href={prev === 1 ? '/uudised' : `/uudised?leht=${prev}`} className={`${linkClass} border-line text-black hover:border-blue hover:text-blue`}>
+        <Link href={prev === 1 ? base : `${base}?leht=${prev}`} className={`${linkClass} border-line text-black hover:border-blue hover:text-blue`}>
           <CaretLeft size={14} weight="bold" />
-          Uuemad
+          {t.news.newer}
         </Link>
       ) : (
         <span />
@@ -95,8 +105,8 @@ function Pagination({ news }: { news: NewsPageView }) {
         {news.page} / {news.totalPages}
       </span>
       {next ? (
-        <Link href={`/uudised?leht=${next}`} className={`${linkClass} border-line text-black hover:border-blue hover:text-blue`}>
-          Vanemad
+        <Link href={`${base}?leht=${next}`} className={`${linkClass} border-line text-black hover:border-blue hover:text-blue`}>
+          {t.news.older}
           <CaretRight size={14} weight="bold" />
         </Link>
       ) : (
@@ -107,10 +117,13 @@ function Pagination({ news }: { news: NewsPageView }) {
 }
 
 export default async function UudisedPage({
+  params,
   searchParams,
-}: {
+}: LocaleParams & {
   searchParams: Promise<{ leht?: string }>
 }) {
+  const locale = toLocale((await params).locale)
+  const t = getDictionary(locale)
   const { leht } = await searchParams
   const page = Number(leht) > 0 ? Math.floor(Number(leht)) : 1
 
@@ -131,12 +144,13 @@ export default async function UudisedPage({
           <div className="shell">
             <div className="flex flex-wrap items-end justify-between gap-6">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue">Uudised</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue">{t.news.eyebrow}</p>
                 <h1 className="mt-5 max-w-[24ch] font-display text-4xl font-bold uppercase leading-[1.02] text-black sm:text-5xl">
-                  Eesti autoralli uudised
+                  {t.news.title}
                 </h1>
                 <p className="mt-4 max-w-[52ch] text-base leading-relaxed text-slate">
-                  Eesti Autospordi Liidu ralliuudised. Täisartiklid avanevad autosport.ee lehel.
+                  {t.news.lead}
+                  {t.news.languageNote ? ` ${t.news.languageNote}` : ''}
                 </p>
               </div>
               <a
@@ -145,7 +159,7 @@ export default async function UudisedPage({
                 rel="noopener noreferrer"
                 className="inline-flex min-h-[44px] items-center gap-2 rounded-md border border-line px-5 text-xs font-bold uppercase tracking-[0.08em] text-black transition-colors hover:border-blue hover:text-blue"
               >
-                Kõik uudised autosport.ee-s
+                {t.news.allOnAutosport}
                 <ArrowUpRight size={14} weight="bold" />
               </a>
             </div>
@@ -153,36 +167,36 @@ export default async function UudisedPage({
             {news && feature ? (
               <>
                 <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {news.page === 1 ? <ArticleCard article={feature} featured /> : <ArticleCard article={feature} />}
+                  <ArticleCard article={feature} locale={locale} t={t} featured={news.page === 1} />
                   {rest.map((article) => (
-                    <ArticleCard key={article.id} article={article} />
+                    <ArticleCard key={article.id} article={article} locale={locale} t={t} />
                   ))}
                 </div>
-                <Pagination news={news} />
+                <Pagination news={news} locale={locale} t={t} />
               </>
             ) : (
               <div className="mt-14 rounded-md border border-line bg-gradient-to-b from-white to-mist px-6 py-16 text-center">
-                <p className="font-semibold text-black">Uudiseid ei õnnestunud praegu laadida.</p>
+                <p className="font-semibold text-black">{t.news.loadFailed}</p>
                 <p className="mt-2 text-sm text-slate">
-                  Proovi hiljem uuesti või loe uudiseid otse{' '}
+                  {t.news.tryLater}{' '}
                   <a href="https://autosport.ee/category/ralli/" target="_blank" rel="noopener noreferrer" className="font-semibold text-blue underline-offset-2 hover:underline">
                     autosport.ee
-                  </a>{' '}
-                  lehel.
+                  </a>
+                  {t.news.onSite === '.' ? '.' : ` ${t.news.onSite}`}
                 </p>
               </div>
             )}
 
             <p className="mt-10 text-xs text-slate">
-              Allikas:{' '}
+              {t.news.sourceLabel}{' '}
               <a href="https://autosport.ee" target="_blank" rel="noopener noreferrer" className="font-semibold text-black underline-offset-2 hover:underline">
-                Eesti Autospordi Liit · autosport.ee
+                {t.news.sourceName}
               </a>
             </p>
           </div>
         </section>
       </main>
-      <SiteFooter />
+      <SiteFooter locale={locale} />
     </>
   )
 }

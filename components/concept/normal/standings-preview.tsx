@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { SEASON, STANDINGS } from '@/lib/concept/fixtures'
 import { DUR, EASE, Rise } from '../motion'
@@ -56,9 +57,9 @@ export function StandingsPreview() {
               )
             })}
           </div>
-          <a href="/punktiseis" className="mt-6 inline-block text-sm font-semibold text-muted transition-colors duration-150 hover:text-chalk">
+          <Link href="/punktiseis" className="mt-6 inline-block text-sm font-semibold text-muted transition-colors duration-150 hover:text-chalk">
             Kõik arvestused ja klassid
-          </a>
+          </Link>
         </Rise>
 
         <Rise delay={0.08} className="lg:col-span-8">

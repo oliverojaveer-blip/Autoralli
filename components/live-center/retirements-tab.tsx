@@ -3,8 +3,10 @@
 import type { RallyRetirementRow } from '@/lib/rallylynx/adapter'
 import { useRallyLynxResource } from './use-rallylynx-resource'
 import { ResourceBoundary } from './resource-boundary'
+import { useT } from '../locale-provider'
 
 export function RetirementsTab() {
+  const t = useT()
   const state = useRallyLynxResource<RallyRetirementRow[]>('/api/rallylynx/retirements', {
     pollMs: 30_000,
   })
@@ -14,7 +16,7 @@ export function RetirementsTab() {
       {(rows) =>
         rows.length === 0 ? (
           <div className="rounded-md border border-line bg-gradient-to-b from-white to-mist px-6 py-16 text-center">
-            <p className="text-sm font-semibold text-slate">Katkestamisi ei ole registreeritud.</p>
+            <p className="text-sm font-semibold text-slate">{t.live.noRetirements}</p>
           </div>
         ) : (
           <div>
@@ -22,11 +24,11 @@ export function RetirementsTab() {
               <table className="w-full min-w-[560px] border-collapse text-sm">
                 <thead>
                   <tr className="border-b border-line bg-gradient-to-b from-white to-mist text-left text-xs font-semibold uppercase tracking-[0.08em] text-slate">
-                    <th className="w-14 px-3 py-2.5">Nr</th>
-                    <th className="px-3 py-2.5">Ekipaaž</th>
-                    <th className="px-3 py-2.5">Auto</th>
-                    <th className="px-3 py-2.5">Katse</th>
-                    <th className="px-3 py-2.5">Põhjus</th>
+                    <th className="w-14 px-3 py-2.5">{t.live.th.number}</th>
+                    <th className="px-3 py-2.5">{t.live.th.crew}</th>
+                    <th className="px-3 py-2.5">{t.live.th.car}</th>
+                    <th className="px-3 py-2.5">{t.live.th.stage}</th>
+                    <th className="px-3 py-2.5">{t.live.th.reason}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -39,7 +41,7 @@ export function RetirementsTab() {
                       </td>
                       <td className="px-3 py-2.5 text-slate">{row.vehicle}</td>
                       <td className="px-3 py-2.5 text-slate">{row.stageLabel}</td>
-                      <td className="px-3 py-2.5 text-black">{row.reason}</td>
+                      <td className="px-3 py-2.5 text-black">{t.live.retirementReason[row.reason as keyof typeof t.live.retirementReason] ?? row.reason}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -53,8 +55,8 @@ export function RetirementsTab() {
                     #{row.number} {row.driver} <span className="font-normal text-slate">/ {row.coDriver}</span>
                   </p>
                   <p className="mt-1 text-xs text-slate">{row.vehicle}</p>
-                  <p className="mt-1 text-xs text-slate">Katse: {row.stageLabel}</p>
-                  <p className="mt-1 text-sm text-black">{row.reason}</p>
+                  <p className="mt-1 text-xs text-slate">{t.live.th.stage}: {row.stageLabel}</p>
+                  <p className="mt-1 text-sm text-black">{t.live.retirementReason[row.reason as keyof typeof t.live.retirementReason] ?? row.reason}</p>
                 </li>
               ))}
             </ul>

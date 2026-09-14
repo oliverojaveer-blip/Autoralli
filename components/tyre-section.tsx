@@ -1,12 +1,8 @@
 import Image from 'next/image'
 import { Snowflake } from '@phosphor-icons/react/dist/ssr'
+import { getDictionary, pick, type Locale } from '@/lib/i18n'
 import { SnapScroller, SNAP_ITEM_CLASS } from './snap-scroller'
-import {
-  RALLY_TYRES,
-  TYRE_DISTRIBUTOR,
-  TYRE_SEASON_LABEL,
-  type RallyTyre,
-} from '@/lib/rally-tyres'
+import { RALLY_TYRES, TYRE_DISTRIBUTOR, type RallyTyre } from '@/lib/rally-tyres'
 
 function formatVariants(tyre: RallyTyre): string {
   return tyre.variants.join(' · ')
@@ -24,14 +20,15 @@ function GravelIcon({ size = 16 }: { size?: number }) {
   )
 }
 
-function SeasonBadge({ tyre }: { tyre: RallyTyre }) {
-  const season = TYRE_SEASON_LABEL[tyre.season]
+function SeasonBadge({ tyre, locale }: { tyre: RallyTyre; locale: Locale }) {
+  const t = getDictionary(locale).tyres
   const winter = tyre.season === 'talv'
+  const label = winter ? `${t.winter} · ${t.studded}` : `${t.summer} · ${t.gravel}`
   return (
     <span
       role="img"
-      aria-label={`${season.title} · ${season.type}`}
-      title={`${season.title} · ${season.type}`}
+      aria-label={label}
+      title={label}
       className={`absolute left-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-md border ${
         winter
           ? 'border-blue bg-gradient-to-b from-blue/[0.06] to-blue/[0.18] text-blue'
@@ -43,7 +40,8 @@ function SeasonBadge({ tyre }: { tyre: RallyTyre }) {
   )
 }
 
-function TyreCard({ tyre }: { tyre: RallyTyre }) {
+function TyreCard({ tyre, locale }: { tyre: RallyTyre; locale: Locale }) {
+  const t = getDictionary(locale).tyres
   return (
     <li className={SNAP_ITEM_CLASS}>
       <article className="group flex h-full flex-col overflow-hidden rounded-md border border-white/15 bg-gradient-to-b from-white/[0.06] to-white/[0.02]">
@@ -51,7 +49,7 @@ function TyreCard({ tyre }: { tyre: RallyTyre }) {
         <div className="relative aspect-[4/3] overflow-hidden bg-white">
           <Image
             src={tyre.image.angled}
-            alt={tyre.image.alt}
+            alt={pick(tyre.image.alt, locale)}
             fill
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 82vw"
             className="object-contain p-4 transition-opacity duration-300 group-hover:opacity-0"
@@ -64,7 +62,7 @@ function TyreCard({ tyre }: { tyre: RallyTyre }) {
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 82vw"
             className="object-contain p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
           />
-          <SeasonBadge tyre={tyre} />
+          <SeasonBadge tyre={tyre} locale={locale} />
         </div>
 
         <div className="flex flex-1 flex-col p-5">
@@ -79,14 +77,14 @@ function TyreCard({ tyre }: { tyre: RallyTyre }) {
           <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-white/10 pt-4">
             {tyre.studLengthMm ? (
               <div>
-                <dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/45">Nael</dt>
+                <dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/45">{t.stud}</dt>
                 <dd className="mt-0.5 font-mono text-sm text-white">{tyre.studLengthMm} mm</dd>
               </div>
             ) : null}
             <div>
-              <dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/45">Hind / rehv</dt>
+              <dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/45">{t.pricePerTyre}</dt>
               <dd className="mt-0.5 font-mono text-sm text-white">
-                {tyre.priceEur} € <span className="text-white/50">+ km</span>
+                {tyre.priceEur} € <span className="text-white/50">{t.plusVat}</span>
               </dd>
             </div>
           </dl>
@@ -100,25 +98,25 @@ function TyreCard({ tyre }: { tyre: RallyTyre }) {
  * Lubatud võistlusrehvide slider /klassid lehel klassivalija all.
  * Sisu tuleb `lib/rally-tyres.ts`-ist; komponent ei tea ühtegi mudelit.
  */
-export function TyreSection() {
+export function TyreSection({ locale }: { locale: Locale }) {
+  const t = getDictionary(locale).tyres
   return (
     <section className="border-t border-white/10 bg-midnight py-20 text-white lg:py-28" id="rehvid">
       <div className="shell">
         <div className="flex flex-wrap items-end justify-between gap-8">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue">Rehvid</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue">{t.eyebrow}</p>
             <h2 className="mt-5 max-w-[20ch] font-display text-4xl font-bold uppercase leading-[1.02] sm:text-5xl">
-              Lubatud võistlusrehvid
+              {t.title}
             </h2>
             <p className="mt-4 max-w-[56ch] text-base leading-relaxed text-white/70">
-              Talvel on lubatud piikrehvid, suvel kruusarehvid. Hinnad on ühe rehvi kohta ilma
-              käibemaksuta.
+              {t.lead}
             </p>
           </div>
 
           <div className="flex flex-col items-start gap-2">
             <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50">
-              Rehvide tarnija
+              {t.supplier}
             </span>
             <Image
               src={TYRE_DISTRIBUTOR.logo.src}
@@ -130,9 +128,9 @@ export function TyreSection() {
           </div>
         </div>
 
-        <SnapScroller ariaLabel="Lubatud rehvid" tone="dark" className="mt-14">
+        <SnapScroller ariaLabel={t.sliderAria} tone="dark" className="mt-14">
           {RALLY_TYRES.map((tyre) => (
-            <TyreCard key={tyre.id} tyre={tyre} />
+            <TyreCard key={tyre.id} tyre={tyre} locale={locale} />
           ))}
         </SnapScroller>
       </div>

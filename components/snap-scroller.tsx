@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { CaretLeft, CaretRight } from '@phosphor-icons/react/dist/ssr'
+import { useT } from './locale-provider'
 
 /**
  * Horisontaalne snap-"slider": sõrmega libistatav, nooltega kaardi kaupa
@@ -22,6 +23,7 @@ export function SnapScroller({
   tone?: 'light' | 'dark'
   className?: string
 }) {
+  const t = useT()
   const trackRef = useRef<HTMLUListElement>(null)
   const [canPrev, setCanPrev] = useState(false)
   const [canNext, setCanNext] = useState(true)
@@ -73,7 +75,7 @@ export function SnapScroller({
           type="button"
           onClick={() => scrollByCard(-1)}
           disabled={!canPrev}
-          aria-label="Eelmine"
+          aria-label={t.common.previous}
           className={`flex h-11 w-11 items-center justify-center rounded-md border transition-colors disabled:cursor-not-allowed disabled:opacity-30 ${arrowClass}`}
         >
           <CaretLeft size={18} weight="bold" />
@@ -82,7 +84,7 @@ export function SnapScroller({
           type="button"
           onClick={() => scrollByCard(1)}
           disabled={!canNext}
-          aria-label="Järgmine"
+          aria-label={t.common.next}
           className={`flex h-11 w-11 items-center justify-center rounded-md border transition-colors disabled:cursor-not-allowed disabled:opacity-30 ${arrowClass}`}
         >
           <CaretRight size={18} weight="bold" />

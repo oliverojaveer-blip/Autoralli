@@ -1,4 +1,5 @@
 import { CALENDAR } from '@/lib/concept/fixtures'
+import Link from 'next/link'
 import { Rise } from '../motion'
 
 const MONTHS = ['jaan', 'veebr', 'märts', 'apr', 'mai', 'juuni', 'juuli', 'aug', 'sept', 'okt', 'nov', 'dets']
@@ -22,9 +23,9 @@ export function CalendarStrip() {
             <h2 className="text-3xl font-bold leading-[1.02] tracking-headline sm:text-4xl lg:text-5xl">
               Hooaeg 2026, seitse etappi
             </h2>
-            <a href="/kalender" className="text-sm font-semibold text-muted transition-colors duration-150 hover:text-chalk">
+            <Link href="/kalender" className="text-sm font-semibold text-muted transition-colors duration-150 hover:text-chalk">
               Täiskalender ja ICS
-            </a>
+            </Link>
           </div>
         </Rise>
 

@@ -1,8 +1,10 @@
 import { byDate } from '@/lib/events'
+import { getDictionary, type Locale } from '@/lib/i18n'
 import { CalendarScroller } from './calendar-scroller'
 import { Reveal } from './reveal'
 
-export function CalendarList() {
+export function CalendarList({ locale }: { locale: Locale }) {
+  const t = getDictionary(locale)
   const events = byDate()
   const now = Date.now()
   const items = events.map((event) => ({
@@ -15,10 +17,10 @@ export function CalendarList() {
       <div className="shell">
         <Reveal>
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue">
-            Kalender
+            {t.calendar.eyebrow}
           </p>
           <h2 className="mt-5 max-w-[20ch] font-display text-4xl font-bold uppercase leading-[1.02] text-black sm:text-5xl">
-            Terminal Autoralli Eesti meistrivõistlused 2026
+            {t.calendar.seasonTitle}
           </h2>
         </Reveal>
 

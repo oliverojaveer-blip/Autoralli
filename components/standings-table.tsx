@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import { STANDINGS, STANDINGS_EVENT_CODES, type StandingsClass } from '@/lib/standings'
+import { useT } from './locale-provider'
 
 function formatPoints(value: number | null) {
   if (value === null) return '–'
@@ -10,11 +11,12 @@ function formatPoints(value: number | null) {
 }
 
 function ClassTable({ cls }: { cls: StandingsClass }) {
+  const t = useT()
   if (cls.rows.length === 0) {
     return (
       <div className="border border-line bg-mist px-6 py-16 text-center">
         <p className="text-sm font-semibold text-slate">
-          {cls.label} tulemused lisanduvad pärast ajavõtupartneriga liidestumist.
+          {t.results.classPending(cls.label)}
         </p>
       </div>
     )
@@ -27,16 +29,16 @@ function ClassTable({ cls }: { cls: StandingsClass }) {
         <table className="w-full min-w-[720px] border-collapse text-sm">
           <thead>
             <tr className="border-b border-line bg-mist text-left text-xs font-semibold uppercase tracking-[0.08em] text-slate">
-              <th className="w-12 px-4 py-3">Koht</th>
-              <th className="px-4 py-3">Sõitja / Kaardilugeja</th>
-              <th className="px-4 py-3">Klubi</th>
-              <th className="px-4 py-3">Auto</th>
+              <th className="w-12 px-4 py-3">{t.results.position}</th>
+              <th className="px-4 py-3">{t.results.crew}</th>
+              <th className="px-4 py-3">{t.results.entrant}</th>
+              <th className="px-4 py-3">{t.results.car}</th>
               {STANDINGS_EVENT_CODES.map((code) => (
                 <th key={code} className="w-14 px-2 py-3 text-center font-mono">
                   {code}
                 </th>
               ))}
-              <th className="w-16 px-4 py-3 text-right">Kokku</th>
+              <th className="w-16 px-4 py-3 text-right">{t.results.total}</th>
             </tr>
           </thead>
           <tbody>
@@ -99,6 +101,7 @@ function ClassTable({ cls }: { cls: StandingsClass }) {
 }
 
 export function StandingsTable() {
+  const t = useT()
   const [activeId, setActiveId] = useState(STANDINGS[0].classId)
   const reducedMotionRaw = useReducedMotion()
   const reducedMotion = reducedMotionRaw ?? false
@@ -106,7 +109,7 @@ export function StandingsTable() {
 
   return (
     <div>
-      <div role="tablist" aria-label="Vali arvestusklass" className="flex flex-wrap gap-2">
+      <div role="tablist" aria-label={t.results.classAria} className="flex flex-wrap gap-2">
         {STANDINGS.map((cls) => {
           const isActive = cls.classId === activeId
           return (

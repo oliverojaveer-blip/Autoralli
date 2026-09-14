@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import Link from 'next/link'
 import { Play, Images, ArrowUpRight } from '@phosphor-icons/react/dist/ssr'
 import { NEWS } from '@/lib/concept/fixtures'
 import { Parallax, Rise } from '../motion'
@@ -31,9 +32,9 @@ export function NewsGrid() {
             <h2 className="text-3xl font-bold leading-[1.02] tracking-headline sm:text-4xl lg:text-5xl">
               Uudised ja meedia
             </h2>
-            <a href="/uudised" className="text-sm font-semibold text-muted transition-colors duration-150 hover:text-chalk">
+            <Link href="/uudised" className="text-sm font-semibold text-muted transition-colors duration-150 hover:text-chalk">
               Kõik lood
-            </a>
+            </Link>
           </div>
         </Rise>
 

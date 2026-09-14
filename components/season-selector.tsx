@@ -4,12 +4,15 @@
  * "Andmed lisandumas" märkega — mitte väljamõeldud tühjade lehtedena
  * (claude.md: ära genereeri oletatavaid andmeid).
  */
+import { getDictionary, type Locale } from '@/lib/i18n'
+
 const SEASONS = [2026, 2025, 2024] as const
 const ACTIVE_SEASON = 2026
 
-export function SeasonSelector() {
+export function SeasonSelector({ locale }: { locale: Locale }) {
+  const t = getDictionary(locale)
   return (
-    <div role="tablist" aria-label="Vali hooaeg" className="flex flex-wrap items-center gap-2">
+    <div role="tablist" aria-label={t.results.seasonAria} className="flex flex-wrap items-center gap-2">
       {SEASONS.map((year) => {
         const isActive = year === ACTIVE_SEASON
         return (
@@ -18,7 +21,7 @@ export function SeasonSelector() {
             role="tab"
             aria-selected={isActive}
             aria-disabled={!isActive}
-            title={isActive ? undefined : 'Andmed lisandumas'}
+            title={isActive ? undefined : t.common.dataComingSoon}
             className={`inline-flex items-center gap-2 px-4 py-2 font-mono text-sm font-semibold tracking-wide ${
               isActive
                 ? 'bg-blue text-white'
@@ -28,7 +31,7 @@ export function SeasonSelector() {
             {year}
             {!isActive ? (
               <span className="text-[9px] font-semibold uppercase tracking-[0.1em] text-slate/50">
-                Peagi
+                {t.common.soon}
               </span>
             ) : null}
           </span>

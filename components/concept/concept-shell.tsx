@@ -113,7 +113,7 @@ export function ConceptShell({ initialMode }: { initialMode: ConceptMode }) {
     <ModeProvider initialMode={initialMode}>
       <ConceptNav />
       <Stage />
-      <SiteFooter />
+      <SiteFooter locale="et" />
       <DemoBadge />
       {/* AJUTINE: prototüübi lüliti. Eemaldamiseks kustuta see rida ja mode-switch.tsx. */}
       <ModeSwitch />

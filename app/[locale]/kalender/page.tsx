@@ -3,13 +3,18 @@ import { SiteNav } from '@/components/site-nav'
 import { SiteFooter } from '@/components/site-footer'
 import { CalendarBrowser } from '@/components/calendar-browser'
 import { byDate } from '@/lib/events'
+import { getDictionary } from '@/lib/i18n'
+import { pageMetadata, toLocale, type LocaleParams } from '@/lib/page-metadata'
 
-export const metadata: Metadata = {
-  title: 'Kalender',
-  description: 'Terminal Autoralli Eesti meistrivõistlused 2026 — kogu hooaja kalender.',
+export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
+  const locale = toLocale((await params).locale)
+  const t = getDictionary(locale)
+  return pageMetadata(locale, '/kalender', t.calendar.metaTitle, t.calendar.metaDescription)
 }
 
-export default function KalenderPage() {
+export default async function KalenderPage({ params }: LocaleParams) {
+  const locale = toLocale((await params).locale)
+  const t = getDictionary(locale)
   const now = Date.now()
   const items = byDate()
     .map((event) => ({ event, isPast: new Date(event.endsAt).getTime() < now }))
@@ -27,11 +32,9 @@ export default function KalenderPage() {
       <main id="sisu">
         <section className="border-b border-line py-20 lg:py-28">
           <div className="shell">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue">
-              Kalender
-            </p>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue">{t.calendar.eyebrow}</p>
             <h1 className="mt-5 max-w-[24ch] font-display text-4xl font-bold uppercase leading-[1.02] text-black sm:text-5xl">
-              Terminal Autoralli Eesti meistrivõistlused 2026
+              {t.calendar.seasonTitle}
             </h1>
 
             <div className="mt-14">
@@ -40,7 +43,7 @@ export default function KalenderPage() {
           </div>
         </section>
       </main>
-      <SiteFooter />
+      <SiteFooter locale={locale} />
     </>
   )
 }

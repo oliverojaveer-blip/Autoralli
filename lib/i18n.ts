@@ -1,61 +1,626 @@
 /**
  * ============================================================================
- *  Minimaalne tõlkesõnastik.
+ *  Tõlkesõnastik ja keeleabid (et / en).
  * ============================================================================
- *  Projektis ei ole veel ühtki tõlkelahendust (vt PROGRESS.md "Järgmisena":
- *  "Inglise keel, claude.md nõuab kahte keelt" — pole tehtud). See fail on
- *  tahtlikult väike, keskne sõnastik ilma uue sõltuvuseta (claude.md: "Ärge
- *  lisage sõltuvust ilma selge põhjenduseta"), mille saab hiljem üle kanda
- *  päris i18n-raamistikku (nt next-intl), kui saidil on rohkem tõlgitavat
- *  sisu. Esitluskomponendid EI tohi tõlgitud stringe ise sisaldada — kõik
- *  käib selle sõnastiku kaudu.
+ *  Ilma uue sõltuvuseta (claude.md): üks keskne, tüübitud sõnastik. `et` on
+ *  allikas; `en` peab olema täpselt sama kujuga (`satisfies`), nii et puuduv
+ *  ingliskeelne võti on kompileerimisviga, mitte tühi koht lehel.
+ *
+ *  URL-skeem: eesti keel ilma prefiksita (`/kalender`), inglise keel
+ *  `/en` prefiksiga (`/en/kalender`). Vt middleware.ts.
+ *
+ *  Serverikomponendid: `getDictionary(locale)` (locale tuleb `params`-ist).
+ *  Klientkomponendid: `useLocale()` / `useT()` (components/locale-provider).
+ *  Esitluskomponendid EI tohi tõlgitud stringe ise sisaldada.
  * ============================================================================
  */
 
 export type Locale = 'et' | 'en'
 
+export const LOCALES: readonly Locale[] = ['et', 'en'] as const
 export const DEFAULT_LOCALE: Locale = 'et'
 
-const dictionaries = {
-  et: {
-    liveCountdown: {
-      days: 'PÄEVA',
-      hours: 'TUNDI',
-      minutes: 'MINUTIT',
-      seconds: 'SEKUNDIT',
-      nextLiveBroadcast: 'Järgmine otseülekanne',
-      startingSoon: 'ÜLEKANNE ALGAB PEAGI',
-      liveNow: 'OTSE-EETER',
-      watchReplay: 'VAATA KORDUST',
-      noReplay: 'Kordust ei ole veel saadaval.',
-      noStream: 'Otseülekande link lisatakse enne starti.',
-      announceStartingSoon: 'Ülekanne algab kohe.',
-      announceLive: 'Ülekanne on nüüd otse-eetris.',
-      remainingTimeLabel: (d: number, h: number, m: number, s: number) =>
-        `${d} päeva, ${h} tundi, ${m} minutit ja ${s} sekundit järgmise otseülekandeni`,
-    },
-  },
-  en: {
-    liveCountdown: {
-      days: 'DAYS',
-      hours: 'HOURS',
-      minutes: 'MINUTES',
-      seconds: 'SECONDS',
-      nextLiveBroadcast: 'Next live broadcast',
-      startingSoon: 'STARTING SOON',
-      liveNow: 'LIVE NOW',
-      watchReplay: 'WATCH REPLAY',
-      noReplay: 'Replay is not available yet.',
-      noStream: 'The live stream link will be added before the start.',
-      announceStartingSoon: 'The broadcast is starting soon.',
-      announceLive: 'The broadcast is live now.',
-      remainingTimeLabel: (d: number, h: number, m: number, s: number) =>
-        `${d} days, ${h} hours, ${m} minutes and ${s} seconds until the next live broadcast`,
-    },
-  },
-} as const
+export function isLocale(value: string | undefined): value is Locale {
+  return value === 'et' || value === 'en'
+}
 
-export type Dictionary = (typeof dictionaries)[Locale]
+/** Sisemine (`/kalender`) -> avalik tee valitud keeles (`/en/kalender`). */
+export function localizedHref(locale: Locale, path: string): string {
+  if (locale === DEFAULT_LOCALE) return path
+  if (path === '/') return `/${locale}`
+  return `/${locale}${path}`
+}
+
+/** Avalik tee -> { locale, path ilma prefiksita }. */
+export function splitLocale(pathname: string): { locale: Locale; path: string } {
+  const match = pathname.match(/^\/(en)(\/|$)/)
+  if (!match) return { locale: 'et', path: pathname }
+  const rest = pathname.slice(3)
+  return { locale: 'en', path: rest === '' ? '/' : rest }
+}
+
+/** Andmefailide kakskeelsed väljad (nt klassikirjeldused). */
+export type LocalizedString = { et: string; en: string }
+
+export function pick(value: LocalizedString | string, locale: Locale): string {
+  return typeof value === 'string' ? value : value[locale]
+}
+
+const et = {
+  meta: {
+    siteTitle: 'Autoralli.ee | Estonian Rally Championship',
+    siteDescription:
+      'Estonian Rally Championship — Eesti autoralli kalender, stardinimekirjad, tulemused ja uudised ühes kohas.',
+    htmlLang: 'et',
+  },
+  common: {
+    skipToContent: 'Liigu põhisisu juurde',
+    homeAria: 'Autoralli.ee avaleht — Estonian Rally Championship',
+    live: 'Live',
+    more: 'Veel',
+    openMenu: 'Ava menüü',
+    closeMenu: 'Sulge menüü',
+    language: 'Keel',
+    switchToEt: 'Eesti keeles',
+    switchToEn: 'In English',
+    previous: 'Eelmine',
+    next: 'Järgmine',
+    all: 'Kõik',
+    opensInNewWindow: 'avaneb uues aknas',
+    dataSource: 'Andmed:',
+    source: 'Allikas',
+    loading: 'Laadin andmeid…',
+    unknown: 'teadmata',
+    soon: 'Peagi',
+    dataComingSoon: 'Andmed lisandumas',
+  },
+  nav: {
+    news: 'Uudised',
+    calendar: 'Kalender',
+    results: 'Tulemused',
+    classes: 'Võistlusklassid',
+    contact: 'Kontakt',
+    spectators: 'Pealtvaatajale',
+    competitors: 'Võistlejale',
+    organisers: 'Korraldajale',
+    rules: 'Reeglid',
+  },
+  footer: {
+    tagline: 'Eesti autoralli kalender, tulemused ja uudised ühes kohas.',
+    competitions: 'Võistlused',
+    startLists: 'Stardinimekirjad',
+    standings: 'Punktiseis',
+    media: 'Meedia',
+    radio: 'Ralliraadio',
+    photos: 'Fotod',
+    videos: 'Videod',
+    info: 'Info',
+    documents: 'Dokumendid',
+    ejc: 'Estonian Junior Challenge',
+    partners: 'Partnerid',
+    languages: 'Eesti keeles ja inglise keeles',
+  },
+  home: {
+    eyebrow: 'Estonian Rally Championship',
+    titleLine1: 'Iga kiiruskatse.',
+    titleLine2: 'Üks koht.',
+    lead: 'Kalender, stardinimekirjad, tulemused ja uudised. Töötab ka siis, kui metsa vahel on levi kehv.',
+    viewCalendar: 'Vaata kalendrit',
+    heroImageAlt: 'Rallisõiduk kiiruskatsel Eesti võistlusteedel',
+    partnersLabel: 'Koostöös',
+    partnersAria: 'Partnerid',
+    newsEyebrow: 'Uudised',
+    newsTitle: 'Viimased ralliuudised',
+    allNews: 'Kõik uudised',
+    latestNewsAria: 'Viimased uudised',
+  },
+  calendar: {
+    eyebrow: 'Kalender',
+    seasonTitle: 'Terminal Autoralli Eesti meistrivõistlused 2026',
+    metaTitle: 'Kalender',
+    metaDescription: 'Terminal Autoralli Eesti meistrivõistlused 2026 — kogu hooaja kalender.',
+    filterAria: 'Filtreeri kalendrit',
+    filterAll: 'Kõik',
+    filterUpcoming: 'Tulemas',
+    filterPast: 'Toimunud',
+    past: 'Toimunud',
+    openWebsite: 'Ava koduleht',
+    viewResults: 'Vaata tulemusi',
+    viewEvent: 'Vaata võistlust',
+    scrollLeft: 'Keri kalender vasakule',
+    scrollRight: 'Keri kalender paremale',
+  },
+  results: {
+    metaTitle: 'Tulemused',
+    metaDescription: 'Eesti meistrivõistluste etappide ametlikud tulemused.',
+    eyebrow: 'Tulemused',
+    title: 'Vali etapp',
+    lead: 'Iga etapi logo viib selle korraldaja kodulehele, kus avaldatakse ametlikud tulemused.',
+    seasonAria: 'Vali hooaeg',
+    openEventResults: (name: string) => `Ava ${name} tulemused (avaneb uues aknas)`,
+    standingsEyebrow: 'Punktiseis',
+    standingsTitle: 'Eesti meistrivõistluste ja karikavõistluste 2026 seis',
+    classAria: 'Vali arvestusklass',
+    classPending: (label: string) => `${label} tulemused lisanduvad pärast ajavõtupartneriga liidestumist.`,
+    position: 'Koht',
+    crew: 'Sõitja / Kaardilugeja',
+    entrant: 'Klubi',
+    car: 'Auto',
+    total: 'Kokku',
+  },
+  integrity: {
+    eyebrow: 'Tulemused',
+    title: 'Iga tulemus ütleb, kui kindel ta on',
+    lead: 'Rajalt tulev aeg ja žürii kinnitatud tulemus ei ole sama asi. Iga number kannab oma staatust, allikat ja viimase uuenduse kellaaega. Kui otsus midagi muudab, jääb muudatus nähtavaks.',
+    note: 'Otseajad ja punktiseis liidetakse ajavõtupartneri süsteemist. Selleni jõudmiseni ei näita see leht oletatavaid positsioone.',
+    unofficial: { label: 'Mitteametlik', note: 'Rajalt jooksev aeg. Võib iga hetk muutuda.' },
+    provisional: { label: 'Esialgne', note: 'Katse lõpetatud, protestiaeg veel avatud.' },
+    official: { label: 'Ametlik', note: 'Žürii kinnitatud. Ei kirjutata üle.' },
+    amended: { label: 'Muudetud', note: 'Otsusega parandatud. Muudatus jääb nähtavaks.' },
+  },
+  live: {
+    metaTitle: 'Live',
+    metaDescription: 'Otseülekanne ja otsetulemused ühes kohas — Estonian Rally Championship Live Center.',
+    eyebrow: 'Live Center',
+    resultsTitle: 'Otsetulemused',
+    tabs: {
+      overall: 'Üldarvestus',
+      stageTimes: 'Katseajad',
+      splits: 'Vaheajad',
+      winners: 'Katsevõitjad',
+      timetable: 'Ajatabel',
+      startList: 'Startinimekiri',
+      penalties: 'Karistused',
+      retirements: 'Katkestajad',
+    },
+    chooseView: 'Vali vaade',
+    series: 'Sari',
+    chooseSeries: 'Vali sari',
+    stage: 'Kiiruskatse',
+    chooseStage: 'Vali kiiruskatse',
+    overallAfter: (stage: string) => `Üldarvestus — pärast ${stage}`,
+    overall: 'Üldarvestus',
+    completedStages: (done: number, total: number) => `Läbitud ${done}/${total} kiiruskatset`,
+    sourceRallyLynx: 'allikas RallyLynx',
+    updated: 'uuendatud',
+    status: { unofficial: 'Mitteametlik', provisional: 'Esialgne', official: 'Ametlik', amended: 'Muudetud' },
+    th: {
+      position: 'Koht',
+      number: 'Nr',
+      crew: 'Ekipaaž',
+      car: 'Auto',
+      total: 'Kokku',
+      gap: 'Vahe',
+      time: 'Aeg',
+      stage: 'Katse',
+      winner: 'Võitja',
+      team: 'Meeskond',
+      point: 'Punkt',
+      reason: 'Põhjus',
+      penalty: 'Karistus',
+      finish: 'Finiš',
+      split: (n: number) => `Split ${n}`,
+    },
+    onStage: 'katsel',
+    noPenalties: 'Karistusi ei ole rakendatud.',
+    noRetirements: 'Katkestamisi ei ole registreeritud.',
+    noSplits: 'Sellel katsel vahepunkte ei ole.',
+    unconfigured: 'Otsetulemuste liides ei ole hetkel seadistatud.',
+    itinerary: { tc: 'Ajakontroll', stage: 'Kiiruskatse', liaison: 'Transiit', regroup: 'Ümberrühmitus', service: 'Hooldus' },
+    target: 'siht',
+    max: 'max',
+    penaltyReason: {
+      tcLate: 'Hilinemine ajakontrolli',
+      tcEarly: 'Ennetähtaegne ajakontroll',
+      falseStart: 'Valestart',
+      stewardsDecision: 'Sportskomissaride otsus',
+      cocDecision: 'Võistlusjuhi otsus',
+    },
+    retirementReason: {
+      mechanical: 'Tehniline rike',
+      accident: 'Avarii',
+      withdrawn: 'Loobus',
+      excluded: 'Eemaldatud',
+      disqualified: 'Diskvalifitseeritud',
+      other: 'Muu',
+    },
+  },
+  classes: {
+    metaTitle: 'Võistlusklassid',
+    metaDescription: 'Estonian Rally Championship võistlusklassid ja tehnilised nõuded.',
+    carouselAria: 'Võistlusklasside valija',
+    eyebrow: 'Võistlusklass',
+    selected: (name: string) => `Valitud klass: ${name}`,
+    technicalRules: 'Tehnilised tingimused',
+    results: 'Tulemused',
+    photoPending: 'Foto lisandub',
+    previousClass: 'Eelmine klass',
+    nextClass: 'Järgmine klass',
+    chooseClass: 'Vali võistlusklass',
+    factIncludes: 'Klassi kuuluvad',
+    factMinAge: 'Vanuse alampiir',
+    factLicence: 'Juhiluba',
+    factTechnicalBasis: 'Tehniline alus',
+    factException: 'Erand',
+    factSeries: 'Arvestus',
+    seriesEmv: 'Eesti meistrivõistlused',
+    seriesCup: 'Karikavõistlused',
+    years: (n: number) => `${n} aastat`,
+  },
+  tyres: {
+    eyebrow: 'Rehvid',
+    title: 'Lubatud võistlusrehvid',
+    lead: 'Talvel on lubatud piikrehvid, suvel kruusarehvid. Hinnad on ühe rehvi kohta ilma käibemaksuta.',
+    supplier: 'Rehvide tarnija',
+    sliderAria: 'Lubatud rehvid',
+    winter: 'Talv',
+    summer: 'Suvi',
+    studded: 'Piikrehvid',
+    gravel: 'Kruusarehvid',
+    stud: 'Nael',
+    pricePerTyre: 'Hind / rehv',
+    plusVat: '+ km',
+  },
+  news: {
+    metaTitle: 'Uudised',
+    metaDescription: 'Eesti autoralli uudised — Eesti Autospordi Liidu ralliuudised ühes kohas.',
+    eyebrow: 'Uudised',
+    title: 'Eesti autoralli uudised',
+    lead: 'Eesti Autospordi Liidu ralliuudised. Täisartiklid avanevad autosport.ee lehel.',
+    languageNote: '',
+    allOnAutosport: 'Kõik uudised autosport.ee-s',
+    readOnAutosport: 'Loe autosport.ee-s',
+    pagesAria: 'Uudiste lehed',
+    newer: 'Uuemad',
+    older: 'Vanemad',
+    loadFailed: 'Uudiseid ei õnnestunud praegu laadida.',
+    tryLater: 'Proovi hiljem uuesti või loe uudiseid otse',
+    onSite: 'lehel.',
+    sourceLabel: 'Allikas:',
+    sourceName: 'Eesti Autospordi Liit · autosport.ee',
+  },
+  rules: {
+    metaTitle: 'Reeglid',
+    metaDescription: 'Estonian Rally Championship võistlusmäärus, üldjuhend ja klasside tehnilised tingimused.',
+    eyebrow: 'Estonian Rally Championship',
+    title: 'Reeglid',
+    lead: 'Võistlusmäärus, üldjuhend ja klasside tehnilised tingimused. Dokumendid avanevad Eesti Autospordi Liidu (autosport.ee) lehel uues aknas.',
+    documents: 'Dokumendid',
+    technical: 'Tehnilised tingimused',
+  },
+  pages: {
+    eyebrow: 'Estonian Rally Championship',
+    underConstruction: 'See leht on ehitamisel.',
+    organisers: { title: 'Korraldajale', lead: 'Peagi leiad siit korraldusjuhendid ja kontaktid võistluse korraldajatele.' },
+    spectators: { title: 'Pealtvaatajale', lead: 'Peagi leiad siit spektaatoriala info, ohutusjuhised ja vaatluspunktide kaardid.' },
+    competitors: { title: 'Võistlejale', lead: 'Peagi leiad siit registreerimise, litsentsid ja tehnilise kontrolli info.' },
+  },
+  liveCountdown: {
+    days: 'PÄEVA',
+    hours: 'TUNDI',
+    minutes: 'MINUTIT',
+    seconds: 'SEKUNDIT',
+    nextLiveBroadcast: 'Järgmine otseülekanne',
+    startingSoon: 'ÜLEKANNE ALGAB PEAGI',
+    liveNow: 'OTSE-EETER',
+    watchReplay: 'VAATA KORDUST',
+    noReplay: 'Kordust ei ole veel saadaval.',
+    noStream: 'Otseülekande link lisatakse enne starti.',
+    announceStartingSoon: 'Ülekanne algab kohe.',
+    announceLive: 'Ülekanne on nüüd otse-eetris.',
+    remainingTimeLabel: (d: number, h: number, m: number, s: number) =>
+      `${d} päeva, ${h} tundi, ${m} minutit ja ${s} sekundit järgmise otseülekandeni`,
+  },
+  notFound: {
+    title: 'Lehte ei leitud',
+    lead: 'Seda lehte ei ole olemas või see on teisaldatud.',
+    home: 'Avalehele',
+  },
+  dates: {
+    monthsShort: ['jaan', 'veebr', 'märts', 'apr', 'mai', 'juuni', 'juuli', 'aug', 'sept', 'okt', 'nov', 'dets'],
+    /** "9. kuni 10. okt 2026" */
+    range: (startDay: number, endDay: number, startMonth: string, endMonth: string, year: number) => {
+      if (startDay === endDay && startMonth === endMonth) return `${startDay}. ${endMonth} ${year}`
+      if (startMonth === endMonth) return `${startDay}. kuni ${endDay}. ${endMonth} ${year}`
+      return `${startDay}. ${startMonth} kuni ${endDay}. ${endMonth} ${year}`
+    },
+    /** "10. sept 2026" */
+    long: (day: number, month: string, year: number) => `${day}. ${month} ${year}`,
+    /** "10. SEPT" (kalendri plaadil) */
+    chip: (day: number, month: string) => `${day}. ${month.toUpperCase()}`,
+    intlTag: 'et-EE',
+  },
+}
+
+const en = {
+  meta: {
+    siteTitle: 'Autoralli.ee | Estonian Rally Championship',
+    siteDescription:
+      'Estonian Rally Championship — calendar, entry lists, results and news of Estonian rallying in one place.',
+    htmlLang: 'en',
+  },
+  common: {
+    skipToContent: 'Skip to main content',
+    homeAria: 'Autoralli.ee home — Estonian Rally Championship',
+    live: 'Live',
+    more: 'More',
+    openMenu: 'Open menu',
+    closeMenu: 'Close menu',
+    language: 'Language',
+    switchToEt: 'Eesti keeles',
+    switchToEn: 'In English',
+    previous: 'Previous',
+    next: 'Next',
+    all: 'All',
+    opensInNewWindow: 'opens in a new window',
+    dataSource: 'Data:',
+    source: 'Source',
+    loading: 'Loading data…',
+    unknown: 'unknown',
+    soon: 'Soon',
+    dataComingSoon: 'Data coming soon',
+  },
+  nav: {
+    news: 'News',
+    calendar: 'Calendar',
+    results: 'Results',
+    classes: 'Classes',
+    contact: 'Contact',
+    spectators: 'Spectators',
+    competitors: 'Competitors',
+    organisers: 'Organisers',
+    rules: 'Regulations',
+  },
+  footer: {
+    tagline: 'Calendar, results and news of Estonian rallying in one place.',
+    competitions: 'Competitions',
+    startLists: 'Entry lists',
+    standings: 'Standings',
+    media: 'Media',
+    radio: 'Rally radio',
+    photos: 'Photos',
+    videos: 'Videos',
+    info: 'Info',
+    documents: 'Documents',
+    ejc: 'Estonian Junior Challenge',
+    partners: 'Partners',
+    languages: 'In Estonian and English',
+  },
+  home: {
+    eyebrow: 'Estonian Rally Championship',
+    titleLine1: 'Every stage.',
+    titleLine2: 'One place.',
+    lead: 'Calendar, entry lists, results and news. Works even when the signal in the forest is poor.',
+    viewCalendar: 'View calendar',
+    heroImageAlt: 'Rally car on a special stage on Estonian roads',
+    partnersLabel: 'In partnership with',
+    partnersAria: 'Partners',
+    newsEyebrow: 'News',
+    newsTitle: 'Latest rally news',
+    allNews: 'All news',
+    latestNewsAria: 'Latest news',
+  },
+  calendar: {
+    eyebrow: 'Calendar',
+    seasonTitle: 'Terminal Estonian Rally Championship 2026',
+    metaTitle: 'Calendar',
+    metaDescription: 'Terminal Estonian Rally Championship 2026 — the full season calendar.',
+    filterAria: 'Filter the calendar',
+    filterAll: 'All',
+    filterUpcoming: 'Upcoming',
+    filterPast: 'Completed',
+    past: 'Completed',
+    openWebsite: 'Open website',
+    viewResults: 'View results',
+    viewEvent: 'View event',
+    scrollLeft: 'Scroll calendar left',
+    scrollRight: 'Scroll calendar right',
+  },
+  results: {
+    metaTitle: 'Results',
+    metaDescription: 'Official results of the Estonian Rally Championship rounds.',
+    eyebrow: 'Results',
+    title: 'Choose a round',
+    lead: "Each round's logo leads to the organiser's website, where the official results are published.",
+    seasonAria: 'Choose a season',
+    openEventResults: (name: string) => `Open ${name} results (opens in a new window)`,
+    standingsEyebrow: 'Standings',
+    standingsTitle: 'Estonian Championship and Cup standings 2026',
+    classAria: 'Choose a class',
+    classPending: (label: string) => `${label} results will be added once the timing partner is connected.`,
+    position: 'Pos',
+    crew: 'Driver / Co-driver',
+    entrant: 'Club',
+    car: 'Car',
+    total: 'Total',
+  },
+  integrity: {
+    eyebrow: 'Results',
+    title: 'Every result says how certain it is',
+    lead: 'A time coming off the stage and a result confirmed by the stewards are not the same thing. Every number carries its status, source and last-updated time. If a decision changes something, the change stays visible.',
+    note: 'Live times and standings are fed from the timing partner’s system. Until then, this site does not show estimated positions.',
+    unofficial: { label: 'Unofficial', note: 'Live time from the stage. May change at any moment.' },
+    provisional: { label: 'Provisional', note: 'Stage finished, protest period still open.' },
+    official: { label: 'Official', note: 'Confirmed by the stewards. Never overwritten.' },
+    amended: { label: 'Amended', note: 'Corrected by decision. The change stays visible.' },
+  },
+  live: {
+    metaTitle: 'Live',
+    metaDescription: 'Live stream and live results in one place — Estonian Rally Championship Live Center.',
+    eyebrow: 'Live Center',
+    resultsTitle: 'Live results',
+    tabs: {
+      overall: 'Overall',
+      stageTimes: 'Stage times',
+      splits: 'Splits',
+      winners: 'Stage winners',
+      timetable: 'Itinerary',
+      startList: 'Entry list',
+      penalties: 'Penalties',
+      retirements: 'Retirements',
+    },
+    chooseView: 'Choose a view',
+    series: 'Series',
+    chooseSeries: 'Choose a series',
+    stage: 'Stage',
+    chooseStage: 'Choose a stage',
+    overallAfter: (stage: string) => `Overall — after ${stage}`,
+    overall: 'Overall',
+    completedStages: (done: number, total: number) => `${done}/${total} stages completed`,
+    sourceRallyLynx: 'source RallyLynx',
+    updated: 'updated',
+    status: { unofficial: 'Unofficial', provisional: 'Provisional', official: 'Official', amended: 'Amended' },
+    th: {
+      position: 'Pos',
+      number: 'No',
+      crew: 'Crew',
+      car: 'Car',
+      total: 'Total',
+      gap: 'Gap',
+      time: 'Time',
+      stage: 'Stage',
+      winner: 'Winner',
+      team: 'Team',
+      point: 'Point',
+      reason: 'Reason',
+      penalty: 'Penalty',
+      finish: 'Finish',
+      split: (n: number) => `Split ${n}`,
+    },
+    onStage: 'on stage',
+    noPenalties: 'No penalties have been applied.',
+    noRetirements: 'No retirements have been recorded.',
+    noSplits: 'This stage has no split points.',
+    unconfigured: 'The live results feed is not configured at the moment.',
+    itinerary: { tc: 'Time control', stage: 'Special stage', liaison: 'Road section', regroup: 'Regroup', service: 'Service' },
+    target: 'target',
+    max: 'max',
+    penaltyReason: {
+      tcLate: 'Late at time control',
+      tcEarly: 'Early at time control',
+      falseStart: 'False start',
+      stewardsDecision: 'Stewards’ decision',
+      cocDecision: 'Clerk of the Course decision',
+    },
+    retirementReason: {
+      mechanical: 'Mechanical',
+      accident: 'Accident',
+      withdrawn: 'Withdrawn',
+      excluded: 'Excluded',
+      disqualified: 'Disqualified',
+      other: 'Other',
+    },
+  },
+  classes: {
+    metaTitle: 'Classes',
+    metaDescription: 'Estonian Rally Championship competition classes and technical requirements.',
+    carouselAria: 'Competition class selector',
+    eyebrow: 'Competition class',
+    selected: (name: string) => `Selected class: ${name}`,
+    technicalRules: 'Technical regulations',
+    results: 'Results',
+    photoPending: 'Photo coming soon',
+    previousClass: 'Previous class',
+    nextClass: 'Next class',
+    chooseClass: 'Choose a competition class',
+    factIncludes: 'Eligible cars',
+    factMinAge: 'Minimum age',
+    factLicence: 'Driving licence',
+    factTechnicalBasis: 'Technical basis',
+    factException: 'Exception',
+    factSeries: 'Classification',
+    seriesEmv: 'Estonian Championship',
+    seriesCup: 'Estonian Cup',
+    years: (n: number) => `${n} years`,
+  },
+  tyres: {
+    eyebrow: 'Tyres',
+    title: 'Permitted competition tyres',
+    lead: 'Studded tyres are permitted in winter, gravel tyres in summer. Prices are per tyre, excluding VAT.',
+    supplier: 'Tyre supplier',
+    sliderAria: 'Permitted tyres',
+    winter: 'Winter',
+    summer: 'Summer',
+    studded: 'Studded tyres',
+    gravel: 'Gravel tyres',
+    stud: 'Stud',
+    pricePerTyre: 'Price / tyre',
+    plusVat: '+ VAT',
+  },
+  news: {
+    metaTitle: 'News',
+    metaDescription: 'Estonian rally news — rally news from the Estonian Autosport Union in one place.',
+    eyebrow: 'News',
+    title: 'Estonian rally news',
+    lead: 'Rally news from the Estonian Autosport Union. Full articles open on autosport.ee.',
+    languageNote: 'Articles are published in Estonian.',
+    allOnAutosport: 'All news on autosport.ee',
+    readOnAutosport: 'Read on autosport.ee',
+    pagesAria: 'News pages',
+    newer: 'Newer',
+    older: 'Older',
+    loadFailed: 'The news could not be loaded right now.',
+    tryLater: 'Try again later or read the news directly on',
+    onSite: '.',
+    sourceLabel: 'Source:',
+    sourceName: 'Estonian Autosport Union · autosport.ee',
+  },
+  rules: {
+    metaTitle: 'Regulations',
+    metaDescription: 'Estonian Rally Championship sporting regulations, general guide and class technical regulations.',
+    eyebrow: 'Estonian Rally Championship',
+    title: 'Regulations',
+    lead: 'Sporting regulations, general guide and class technical regulations. Documents open on the Estonian Autosport Union website (autosport.ee) in a new window.',
+    documents: 'Documents',
+    technical: 'Technical regulations',
+  },
+  pages: {
+    eyebrow: 'Estonian Rally Championship',
+    underConstruction: 'This page is under construction.',
+    organisers: { title: 'Organisers', lead: 'Organising guides and contacts for event organisers will be published here soon.' },
+    spectators: { title: 'Spectators', lead: 'Spectator area information, safety guidance and spectator point maps will be published here soon.' },
+    competitors: { title: 'Competitors', lead: 'Registration, licence and scrutineering information will be published here soon.' },
+  },
+  liveCountdown: {
+    days: 'DAYS',
+    hours: 'HOURS',
+    minutes: 'MINUTES',
+    seconds: 'SECONDS',
+    nextLiveBroadcast: 'Next live broadcast',
+    startingSoon: 'STARTING SOON',
+    liveNow: 'LIVE NOW',
+    watchReplay: 'WATCH REPLAY',
+    noReplay: 'Replay is not available yet.',
+    noStream: 'The live stream link will be added before the start.',
+    announceStartingSoon: 'The broadcast is starting soon.',
+    announceLive: 'The broadcast is live now.',
+    remainingTimeLabel: (d: number, h: number, m: number, s: number) =>
+      `${d} days, ${h} hours, ${m} minutes and ${s} seconds until the next live broadcast`,
+  },
+  notFound: {
+    title: 'Page not found',
+    lead: 'This page does not exist or has been moved.',
+    home: 'Go to the homepage',
+  },
+  dates: {
+    monthsShort: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    /** "9–10 Oct 2026" */
+    range: (startDay: number, endDay: number, startMonth: string, endMonth: string, year: number) => {
+      if (startDay === endDay && startMonth === endMonth) return `${startDay} ${endMonth} ${year}`
+      if (startMonth === endMonth) return `${startDay}–${endDay} ${endMonth} ${year}`
+      return `${startDay} ${startMonth} – ${endDay} ${endMonth} ${year}`
+    },
+    /** "10 Sep 2026" */
+    long: (day: number, month: string, year: number) => `${day} ${month} ${year}`,
+    /** "10 SEP" */
+    chip: (day: number, month: string) => `${day} ${month.toUpperCase()}`,
+    intlTag: 'en-GB',
+  },
+} satisfies typeof et
+
+export type Dictionary = typeof et
+
+const dictionaries: Record<Locale, Dictionary> = { et, en }
 
 export function getDictionary(locale: Locale = DEFAULT_LOCALE): Dictionary {
   return dictionaries[locale] ?? dictionaries[DEFAULT_LOCALE]

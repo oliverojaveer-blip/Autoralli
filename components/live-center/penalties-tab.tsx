@@ -4,16 +4,10 @@ import type { RallyPenaltyRow } from '@/lib/rallylynx/adapter'
 import { useRallyLynxResource } from './use-rallylynx-resource'
 import { ResourceBoundary } from './resource-boundary'
 import { formatDuration } from './format'
-
-const REASON_LABEL: Record<string, string> = {
-  tcLate: 'Hilinemine ajakontrolli',
-  tcEarly: 'Ennetähtaegne ajakontroll',
-  falseStart: 'Valestart',
-  stewardsDecision: 'Sportskomissaride otsus',
-  cocDecision: 'Võistlusjuhi otsus',
-}
+import { useT } from '../locale-provider'
 
 export function PenaltiesTab() {
+  const t = useT()
   const state = useRallyLynxResource<RallyPenaltyRow[]>('/api/rallylynx/penalties', {
     pollMs: 30_000,
   })
@@ -23,7 +17,7 @@ export function PenaltiesTab() {
       {(rows) =>
         rows.length === 0 ? (
           <div className="rounded-md border border-line bg-gradient-to-b from-white to-mist px-6 py-16 text-center">
-            <p className="text-sm font-semibold text-slate">Karistusi ei ole rakendatud.</p>
+            <p className="text-sm font-semibold text-slate">{t.live.noPenalties}</p>
           </div>
         ) : (
           <div>
@@ -31,11 +25,11 @@ export function PenaltiesTab() {
               <table className="w-full min-w-[560px] border-collapse text-sm">
                 <thead>
                   <tr className="border-b border-line bg-gradient-to-b from-white to-mist text-left text-xs font-semibold uppercase tracking-[0.08em] text-slate">
-                    <th className="w-14 px-3 py-2.5">Nr</th>
-                    <th className="px-3 py-2.5">Ekipaaž</th>
-                    <th className="px-3 py-2.5">Punkt</th>
-                    <th className="px-3 py-2.5">Põhjus</th>
-                    <th className="px-3 py-2.5 text-right">Karistus</th>
+                    <th className="w-14 px-3 py-2.5">{t.live.th.number}</th>
+                    <th className="px-3 py-2.5">{t.live.th.crew}</th>
+                    <th className="px-3 py-2.5">{t.live.th.point}</th>
+                    <th className="px-3 py-2.5">{t.live.th.reason}</th>
+                    <th className="px-3 py-2.5 text-right">{t.live.th.penalty}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -48,7 +42,7 @@ export function PenaltiesTab() {
                       </td>
                       <td className="px-3 py-2.5 text-slate">{row.itineraryItemLabel}</td>
                       <td className="px-3 py-2.5 text-black">
-                        {REASON_LABEL[row.reason] ?? row.reason}
+                        {t.live.penaltyReason[row.reason as keyof typeof t.live.penaltyReason] ?? row.reason}
                       </td>
                       <td className="px-3 py-2.5 text-right font-mono tabular-nums text-blue">
                         +{formatDuration(row.amountMs)}
@@ -72,7 +66,7 @@ export function PenaltiesTab() {
                   </div>
                   <p className="text-xs text-slate">{row.coDriver}</p>
                   <p className="mt-1 text-xs text-slate">{row.itineraryItemLabel}</p>
-                  <p className="mt-1 text-sm text-black">{REASON_LABEL[row.reason] ?? row.reason}</p>
+                  <p className="mt-1 text-sm text-black">{t.live.penaltyReason[row.reason as keyof typeof t.live.penaltyReason] ?? row.reason}</p>
                 </li>
               ))}
             </ul>

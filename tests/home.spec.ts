@@ -21,8 +21,8 @@ test.describe('Avaleht', () => {
       page.getByRole('link', { name: 'Vaata kalendrit' }),
     ).toHaveAttribute('href', '/kalender')
     await expect(
-      page.getByRole('link', { name: 'Otsetulemused' }).first(),
-    ).toHaveAttribute('href', '/tulemused')
+      page.getByRole('link', { name: 'Live', exact: true }).first(),
+    ).toHaveAttribute('href', '/otse')
   })
 
   test('kalendris on võistlused kronoloogilises järjekorras', async ({

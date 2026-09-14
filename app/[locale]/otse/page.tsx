@@ -4,33 +4,20 @@ import { CalendarBlank, MapPin } from '@phosphor-icons/react/dist/ssr'
 import { SiteNav } from '@/components/site-nav'
 import { SiteFooter } from '@/components/site-footer'
 import { LiveCenter } from '@/components/live-center/live-center'
-import { formatRange, nextEvent } from '@/lib/events'
+import { nextEvent } from '@/lib/events'
+import { dateTile, formatDateRange } from '@/lib/dates'
+import { getDictionary, pick } from '@/lib/i18n'
+import { pageMetadata, toLocale, type LocaleParams } from '@/lib/page-metadata'
 import { fetchRallyEventOverview } from '@/lib/rallylynx/adapter'
 import { getCurrentRallyLynxEvent } from '@/lib/rallylynx/config'
 
-export const metadata: Metadata = {
-  title: 'Live',
-  description: 'Otseülekanne ja otsetulemused ühes kohas — Estonian Rally Championship Live Center.',
-}
+/** Elav sisu (RallyLynx / autosport.ee, ?leht=) — ei tohi ehitusaegselt kivistuda. */
+export const dynamic = 'force-dynamic'
 
-const MONTHS_SHORT = [
-  'JAAN',
-  'VEEBR',
-  'MÄRTS',
-  'APR',
-  'MAI',
-  'JUUNI',
-  'JUULI',
-  'AUG',
-  'SEPT',
-  'OKT',
-  'NOV',
-  'DETS',
-]
-
-function dateTile(iso: string) {
-  const d = new Date(iso)
-  return { day: d.getUTCDate(), month: MONTHS_SHORT[d.getUTCMonth()] }
+export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
+  const locale = toLocale((await params).locale)
+  const t = getDictionary(locale)
+  return pageMetadata(locale, '/otse', t.live.metaTitle, t.live.metaDescription)
 }
 
 /**
@@ -59,10 +46,12 @@ async function fetchLiveEventName(): Promise<string | null> {
   }
 }
 
-export default async function OtsePage() {
+export default async function OtsePage({ params }: LocaleParams) {
+  const locale = toLocale((await params).locale)
+  const t = getDictionary(locale)
   const event = nextEvent()
-  const start = dateTile(event.startsAt)
-  const end = dateTile(event.endsAt)
+  const start = dateTile(event.startsAt, locale)
+  const end = dateTile(event.endsAt, locale)
   const liveEventName = await fetchLiveEventName()
   const displayName = liveEventName ?? event.name
   // Kalendri logo/asukoht/kuupäevad kehtivad ainult siis, kui RallyLynx'i
@@ -80,7 +69,7 @@ export default async function OtsePage() {
           <div className="absolute inset-0">
             <Image
               src={event.photo.src}
-              alt={event.photo.alt}
+              alt={pick(event.photo.alt, locale)}
               fill
               priority
               sizes="100vw"
@@ -105,7 +94,7 @@ export default async function OtsePage() {
                 ) : null}
 
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue">
-                  Live Center
+                  {t.live.eyebrow}
                 </p>
                 <h1 className="mt-3 max-w-[22ch] font-display text-4xl font-bold uppercase leading-[0.98] text-white sm:text-5xl lg:text-6xl">
                   {displayName}
@@ -115,11 +104,11 @@ export default async function OtsePage() {
                   <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-white/80">
                     <span className="inline-flex items-center gap-2">
                       <MapPin size={16} weight="bold" className="text-blue" />
-                      {event.location}
+                      {pick(event.location, locale)}
                     </span>
                     <span className="inline-flex items-center gap-2">
                       <CalendarBlank size={16} weight="bold" className="text-blue" />
-                      {formatRange(event.startsAt, event.endsAt)}
+                      {formatDateRange(event.startsAt, event.endsAt, locale)}
                     </span>
                   </div>
                 ) : null}
@@ -148,11 +137,9 @@ export default async function OtsePage() {
 
         <section className="border-b border-line py-16 lg:py-20">
           <div className="shell">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue">
-              Live Center
-            </p>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue">{t.live.eyebrow}</p>
             <h2 className="mt-3 font-display text-3xl font-bold uppercase leading-tight text-black sm:text-4xl">
-              Otsetulemused
+              {t.live.resultsTitle}
             </h2>
             <div className="mt-10">
               <LiveCenter />
@@ -160,7 +147,7 @@ export default async function OtsePage() {
           </div>
         </section>
       </main>
-      <SiteFooter />
+      <SiteFooter locale={locale} />
     </>
   )
 }

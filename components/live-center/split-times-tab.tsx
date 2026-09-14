@@ -6,6 +6,7 @@ import { useRallyLynxResource } from './use-rallylynx-resource'
 import { ResourceBoundary } from './resource-boundary'
 import { StageSelector } from './stage-selector'
 import { formatDuration, formatGap } from './format'
+import { useT } from '../locale-provider'
 
 export function SplitTimesTab() {
   const stagesState = useRallyLynxResource<RallyStageView[]>('/api/rallylynx/stages')
@@ -42,11 +43,12 @@ export function SplitTimesTab() {
 }
 
 function SplitTimesTable({ stage }: { stage: RallyStageResultsView }) {
+  const t = useT()
   if (stage.splitDistances.length === 0) {
     return (
       <div className="rounded-md border border-line bg-gradient-to-b from-white to-mist px-6 py-16 text-center">
         <p className="text-sm font-semibold text-slate">
-          Sellel kiiruskatsel ei ole vahepunkte.
+          {t.live.noSplits}
         </p>
       </div>
     )
@@ -63,14 +65,14 @@ function SplitTimesTable({ stage }: { stage: RallyStageResultsView }) {
         <table className="w-full min-w-[640px] border-collapse text-sm">
           <thead>
             <tr className="border-b border-line bg-gradient-to-b from-white to-mist text-left text-xs font-semibold uppercase tracking-[0.08em] text-slate">
-              <th className="w-10 px-3 py-2.5">Koht</th>
-              <th className="px-3 py-2.5">Ekipaaž</th>
+              <th className="w-10 px-3 py-2.5">{t.live.th.position}</th>
+              <th className="px-3 py-2.5">{t.live.th.crew}</th>
               {stage.splitDistances.map((split) => (
                 <th key={split.splitIndex} className="px-2 py-2.5 text-right font-mono">
-                  VP{split.splitIndex}
+                  {t.live.th.split(split.splitIndex)}
                 </th>
               ))}
-              <th className="px-3 py-2.5 text-right">Finiš</th>
+              <th className="px-3 py-2.5 text-right">{t.live.th.finish}</th>
             </tr>
           </thead>
           <tbody>
@@ -150,7 +152,7 @@ function SplitTimesTable({ stage }: { stage: RallyStageResultsView }) {
                 return (
                   <div key={split.splitIndex} className="text-center">
                     <p className="font-mono text-[10px] uppercase text-slate/70">
-                      VP{split.splitIndex}
+                      {t.live.th.split(split.splitIndex)}
                     </p>
                     <p className="mt-0.5 font-mono text-xs tabular-nums text-black">
                       {time ? formatDuration(time.elapsedMs) : '—'}

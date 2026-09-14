@@ -8,6 +8,8 @@
  * ============================================================================
  */
 
+import type { LocalizedString } from './i18n'
+
 export type TyreSeason = 'talv' | 'suvi'
 
 export type RallyTyre = {
@@ -21,12 +23,7 @@ export type RallyTyre = {
   studLengthMm?: number
   /** Hind ühe rehvi kohta eurodes, ilma käibemaksuta. */
   priceEur: number
-  image: { angled: string; tread: string; alt: string }
-}
-
-export const TYRE_SEASON_LABEL: Record<TyreSeason, { title: string; type: string }> = {
-  talv: { title: 'Talv', type: 'Piikrehvid' },
-  suvi: { title: 'Suvi', type: 'Kruusarehvid' },
+  image: { angled: string; tread: string; alt: LocalizedString }
 }
 
 export const RALLY_TYRES: RallyTyre[] = [
@@ -41,7 +38,7 @@ export const RALLY_TYRES: RallyTyre[] = [
     image: {
       angled: '/images/tyres/pirelli-wj.webp',
       tread: '/images/tyres/pirelli-wj-tread.webp',
-      alt: 'Pirelli WJ piikrehv 185/65R15',
+      alt: { et: 'Pirelli WJ piikrehv 185/65R15', en: 'Pirelli WJ studded tyre 185/65R15' },
     },
   },
   {
@@ -55,7 +52,7 @@ export const RALLY_TYRES: RallyTyre[] = [
     image: {
       angled: '/images/tyres/pirelli-j1.webp',
       tread: '/images/tyres/pirelli-j1-tread.webp',
-      alt: 'Pirelli J1 piikrehv 205/65R15',
+      alt: { et: 'Pirelli J1 piikrehv 205/65R15', en: 'Pirelli J1 studded tyre 205/65R15' },
     },
   },
   {
@@ -68,7 +65,7 @@ export const RALLY_TYRES: RallyTyre[] = [
     image: {
       angled: '/images/tyres/pirelli-k6.webp',
       tread: '/images/tyres/pirelli-k6-tread.webp',
-      alt: 'Pirelli Scorpion K6 kruusarehv 175/70R15',
+      alt: { et: 'Pirelli Scorpion K6 kruusarehv 175/70R15', en: 'Pirelli Scorpion K6 gravel tyre 175/70R15' },
     },
   },
   {
@@ -81,7 +78,7 @@ export const RALLY_TYRES: RallyTyre[] = [
     image: {
       angled: '/images/tyres/pirelli-k6.webp',
       tread: '/images/tyres/pirelli-k6-tread.webp',
-      alt: 'Pirelli Scorpion K6 kruusarehv 185/70R15',
+      alt: { et: 'Pirelli Scorpion K6 kruusarehv 185/70R15', en: 'Pirelli Scorpion K6 gravel tyre 185/70R15' },
     },
   },
   {
@@ -94,7 +91,7 @@ export const RALLY_TYRES: RallyTyre[] = [
     image: {
       angled: '/images/tyres/pirelli-k6.webp',
       tread: '/images/tyres/pirelli-k6-tread.webp',
-      alt: 'Pirelli Scorpion K6 kruusarehv 195/70R15',
+      alt: { et: 'Pirelli Scorpion K6 kruusarehv 195/70R15', en: 'Pirelli Scorpion K6 gravel tyre 195/70R15' },
     },
   },
 ]

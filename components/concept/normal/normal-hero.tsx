@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import { motion, useReducedMotion } from 'motion/react'
 import { ArrowRight, CaretRight } from '@phosphor-icons/react/dist/ssr'
-import { formatRange } from '@/lib/events'
+import { formatDateRange } from '@/lib/dates'
 import { NEXT_EVENT, SEASON } from '@/lib/concept/fixtures'
 import { useCountdown } from '@/components/use-countdown'
 import { DUR, EASE, MaskedLines } from '../motion'
@@ -107,7 +107,7 @@ export function NormalHero() {
                 {NEXT_EVENT.name}
               </h2>
               <p className="mt-3 font-mono text-sm text-muted">
-                {formatRange(NEXT_EVENT.startsAt, NEXT_EVENT.endsAt)}, {NEXT_EVENT.town}
+                {formatDateRange(NEXT_EVENT.startsAt, NEXT_EVENT.endsAt, 'et')}, {NEXT_EVENT.town}
               </p>
               <div className="mt-6 grid grid-cols-4 gap-3 border-t border-line pt-6">
                 <Unit value={countdown?.days ?? null} label="päeva" />

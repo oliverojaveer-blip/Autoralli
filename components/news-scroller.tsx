@@ -2,18 +2,14 @@ import Image from 'next/image'
 import { ArrowUpRight } from '@phosphor-icons/react/dist/ssr'
 import type { NewsArticleView } from '@/lib/autosport/adapter'
 import { SnapScroller, SNAP_ITEM_CLASS } from './snap-scroller'
-
-const MONTHS = ['jaan', 'veebr', 'märts', 'apr', 'mai', 'juuni', 'juuli', 'aug', 'sept', 'okt', 'nov', 'dets']
-
-function formatDate(iso: string): string {
-  const d = new Date(iso)
-  return `${d.getUTCDate()}. ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`
-}
+import { formatLongDate } from '@/lib/dates'
+import { getDictionary, type Locale } from '@/lib/i18n'
 
 /** Avalehe uudiste slider: viis viimast autosport.ee ralliuudist. */
-export function NewsScroller({ articles }: { articles: NewsArticleView[] }) {
+export function NewsScroller({ articles, locale }: { articles: NewsArticleView[]; locale: Locale }) {
+  const t = getDictionary(locale)
   return (
-    <SnapScroller ariaLabel="Viimased uudised">
+    <SnapScroller ariaLabel={t.home.latestNewsAria}>
       {articles.map((article) => (
         <li key={article.id} className={SNAP_ITEM_CLASS}>
           <a
@@ -39,7 +35,7 @@ export function NewsScroller({ articles }: { articles: NewsArticleView[] }) {
             </div>
             <div className="flex flex-1 flex-col p-5">
               <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-slate">
-                {formatDate(article.publishedAt)}
+                {formatLongDate(article.publishedAt, locale)}
               </p>
               <h3 className="mt-2 font-display text-lg font-bold uppercase leading-[1.05] text-black transition-colors group-hover:text-blue">
                 {article.title}
@@ -48,7 +44,7 @@ export function NewsScroller({ articles }: { articles: NewsArticleView[] }) {
                 <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-slate">{article.excerpt}</p>
               ) : null}
               <span className="mt-auto inline-flex items-center gap-1.5 pt-4 text-xs font-bold uppercase tracking-[0.08em] text-blue">
-                Loe autosport.ee-s
+                {t.news.readOnAutosport}
                 <ArrowUpRight size={14} weight="bold" />
               </span>
             </div>
