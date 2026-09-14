@@ -7,6 +7,7 @@ import { ResultsEventSlider } from '@/components/results-event-slider'
 import { SeasonSelector } from '@/components/season-selector'
 import { getDictionary } from '@/lib/i18n'
 import { pageMetadata, toLocale, type LocaleParams } from '@/lib/page-metadata'
+import { getEvents } from '@/lib/events-source'
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const locale = toLocale((await params).locale)
@@ -22,6 +23,7 @@ export async function generateMetadata({ params }: LocaleParams): Promise<Metada
 export default async function TulemusedPage({ params }: LocaleParams) {
   const locale = toLocale((await params).locale)
   const t = getDictionary(locale)
+  const events = await getEvents()
 
   return (
     <>
@@ -40,7 +42,7 @@ export default async function TulemusedPage({ params }: LocaleParams) {
             </div>
 
             <div className="mt-8">
-              <ResultsEventSlider />
+              <ResultsEventSlider events={events} />
             </div>
 
             {/* Ajavõtupartneri tunnustus: tulemused ja registreerimine elavad RallyLynxis. */}

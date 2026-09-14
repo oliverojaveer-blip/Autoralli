@@ -1,11 +1,10 @@
-import { byDate } from '@/lib/events'
+import type { RallyEvent } from '@/lib/events'
 import { getDictionary, type Locale } from '@/lib/i18n'
 import { CalendarScroller } from './calendar-scroller'
 import { Reveal } from './reveal'
 
-export function CalendarList({ locale }: { locale: Locale }) {
+export function CalendarList({ locale, events }: { locale: Locale; events: RallyEvent[] }) {
   const t = getDictionary(locale)
-  const events = byDate()
   const now = Date.now()
   const items = events.map((event) => ({
     event,

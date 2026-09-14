@@ -2,7 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, ArrowUpRight } from '@phosphor-icons/react/dist/ssr'
 import { FlagLink } from './flag-link'
-import { byDate, nextEvent } from '@/lib/events'
+import { nextEvent, type RallyEvent } from '@/lib/events'
 import { formatDateRange } from '@/lib/dates'
 import { getDictionary, localizedHref, pick, type Locale } from '@/lib/i18n'
 
@@ -14,9 +14,8 @@ import { getDictionary, localizedHref, pick, type Locale } from '@/lib/i18n'
  * Iga ring kannab oma embleemi (kui see on olemas); toimunud ringid on
  * märgitud, mitte tuhmid, järgmine ring kannab sinist ülaserva. Andmed: `lib/events.ts`.
  */
-export function SeasonStrip({ locale }: { locale: Locale }) {
+export function SeasonStrip({ locale, events }: { locale: Locale; events: RallyEvent[] }) {
   const t = getDictionary(locale)
-  const events = byDate()
   const next = nextEvent(events)
   const now = Date.now()
   const nextIndex = events.findIndex((e) => e.id === next.id)

@@ -34,9 +34,19 @@ export const rallyEvent = defineType({
       description: 'Sama ID, mis lib/events.ts (nt ev-2026-06). Ei muutu kunagi.',
       validation: (r) => r.required().regex(/^ev-\d{4}-\d{2}$/, { name: 'eventId' }),
     }),
-    defineField({ name: 'name', title: 'Nimi', type: 'string', validation: (r) => r.required() }),
+    defineField({ name: 'name', title: 'Nimi', type: 'string', description: 'Pärisnimi, ei tõlgita (nt Saaremaa Ralli).', validation: (r) => r.required() }),
+    defineField({ name: 'season', title: 'Hooaeg', type: 'number', description: 'Aasta, nt 2026. Kalender näitab valitud hooaega.', validation: (r) => r.required().min(2000) }),
+    defineField({ name: 'series', title: 'Sari', type: 'string', description: 'nt EMV, WRC, ERC.', initialValue: 'EMV', validation: (r) => r.required() }),
     defineField({ name: 'startsAt', title: 'Algus', type: 'datetime', validation: (r) => r.required() }),
     defineField({ name: 'endsAt', title: 'Lõpp', type: 'datetime', validation: (r) => r.required() }),
+    defineField({ name: 'locationEt', title: 'Asukoht (et)', type: 'string', description: 'nt Kuressaare või Alūksne, Läti', validation: (r) => r.required() }),
+    defineField({ name: 'locationEn', title: 'Asukoht (en)', type: 'string', description: 'nt Kuressaare või Alūksne, Latvia', validation: (r) => r.required() }),
+    defineField({ name: 'logo', title: 'Ürituse embleem', type: 'image', description: 'Rallikilp/logo, läbipaistva taustaga PNG. Valikuline.' }),
+    defineField({ name: 'photo', title: 'Foto', type: 'image', options: { hotspot: true }, description: 'Kalendrikaardi ja avalehe taust. Kui puudub, kasutatakse üldist rallifotot.' }),
+    defineField({ name: 'photoAltEt', title: 'Foto kirjeldus (et)', type: 'string' }),
+    defineField({ name: 'photoAltEn', title: 'Foto kirjeldus (en)', type: 'string' }),
+    defineField({ name: 'websiteUrl', title: 'Korraldaja koduleht', type: 'url', validation: (r) => r.uri({ scheme: ['https', 'http'] }) }),
+    defineField({ name: 'resultsUrl', title: 'Tulemuste link (RallyLynx)', type: 'url', description: 'Kuhu /tulemused plaat viib, nt https://rallylynx.com/e/…/results', validation: (r) => r.uri({ scheme: ['https'] }) }),
     defineField({
       name: 'hashtags',
       title: 'Hashtagid',
@@ -59,7 +69,11 @@ export const rallyEvent = defineType({
       description: 'Kui väljas, ei võta bot postitusi vastu ja /otse blogi vahekaart on peidus.',
     }),
   ],
-  preview: { select: { title: 'name', subtitle: 'eventId' } },
+  orderings: [{ title: 'Kuupäeva järgi', name: 'startsAsc', by: [{ field: 'startsAt', direction: 'asc' }] }],
+  preview: {
+    select: { title: 'name', eventId: 'eventId', startsAt: 'startsAt', media: 'logo' },
+    prepare: (v) => ({ title: v.title as string, subtitle: `${v.eventId} · ${String(v.startsAt ?? '').slice(0, 10)}`, media: v.media }),
+  },
 })
 
 export const blogAuthor = defineType({

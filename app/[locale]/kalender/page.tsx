@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { SiteNav } from '@/components/site-nav'
 import { SiteFooter } from '@/components/site-footer'
 import { CalendarBrowser } from '@/components/calendar-browser'
-import { byDate } from '@/lib/events'
+import { getEvents } from '@/lib/events-source'
 import { getDictionary } from '@/lib/i18n'
 import { pageMetadata, toLocale, type LocaleParams } from '@/lib/page-metadata'
 
@@ -16,7 +16,7 @@ export default async function KalenderPage({ params }: LocaleParams) {
   const locale = toLocale((await params).locale)
   const t = getDictionary(locale)
   const now = Date.now()
-  const items = byDate()
+  const items = (await getEvents())
     .map((event) => ({ event, isPast: new Date(event.endsAt).getTime() < now }))
     // Tulemas etapid ees (lähim enne), toimunud etapid taga (viimane enne) —
     // mitte puhtalt kronoloogiline, kus jaanuari toimunud etapp oleks esimene.

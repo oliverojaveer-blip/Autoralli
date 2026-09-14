@@ -4,7 +4,7 @@ import { useCallback, useLayoutEffect, useEffect, useRef, useState } from 'react
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowSquareOut } from '@phosphor-icons/react/dist/ssr'
-import { byDate, nextEvent, type RallyEvent } from '@/lib/events'
+import { nextEvent, type RallyEvent } from '@/lib/events'
 import { useT } from './locale-provider'
 
 function TileContent({ event, isActive }: { event: RallyEvent; isActive: boolean }) {
@@ -98,8 +98,7 @@ function ResultsTile({
   )
 }
 
-export function ResultsEventSlider() {
-  const events = byDate()
+export function ResultsEventSlider({ events }: { events: RallyEvent[] }) {
   const trackRef = useRef<HTMLUListElement>(null)
   const itemRefs = useRef<Array<HTMLLIElement | null>>([])
   const startSpacerRef = useRef<HTMLLIElement>(null)

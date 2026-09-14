@@ -4,7 +4,8 @@ import { SiteFooter } from '@/components/site-footer'
 import { LiveCenter } from '@/components/live-center/live-center'
 import { LiveEventBar } from '@/components/live-center/live-event-bar'
 import { LiveSelectionProvider } from '@/components/live-center/live-selection'
-import { byDate, nextEvent } from '@/lib/events'
+import { nextEvent } from '@/lib/events'
+import { getEvents } from '@/lib/events-source'
 import { getDictionary } from '@/lib/i18n'
 import { pageMetadata, toLocale, type LocaleParams } from '@/lib/page-metadata'
 
@@ -32,7 +33,7 @@ export async function generateMetadata({ params }: LocaleParams): Promise<Metada
  */
 export default async function OtsePage({ params }: LocaleParams) {
   const locale = toLocale((await params).locale)
-  const events = byDate()
+  const events = await getEvents()
   const event = nextEvent(events)
   const roundNumber = events.findIndex((e) => e.id === event.id) + 1
 
