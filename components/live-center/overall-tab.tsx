@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import type { RallyClassificationView, RallyEventOverview, RallyStageView } from '@/lib/rallylynx/adapter'
 import { useRallyLynxResource } from './use-rallylynx-resource'
 import { ResourceBoundary } from './resource-boundary'
-import { SeriesFilter, ALL_SERIES, classIdsForSeries } from './series-filter'
+import { SeriesFilter, DEFAULT_FILTER, allowedClassIds, selectedClassName } from './series-filter'
 import { StageSelector } from './stage-selector'
 import { formatDuration, formatGap, formatUpdatedAt } from './format'
 import { useLocale, useT } from '../locale-provider'
@@ -15,7 +15,7 @@ export function OverallTab() {
   const stagesState = useRallyLynxResource<RallyStageView[]>('/api/rallylynx/stages')
 
   const [stageId, setStageId] = useState<string | null>(null)
-  const [seriesId, setSeriesId] = useState(ALL_SERIES)
+  const [filter, setFilter] = useState(DEFAULT_FILTER)
 
   useEffect(() => {
     if (stagesState.kind === 'ready' && stageId === null && stagesState.data.length > 0) {
@@ -37,7 +37,7 @@ export function OverallTab() {
             return (
               <div>
                 <div className="flex flex-col gap-4 border-b border-line pb-6">
-                  <SeriesFilter series={event.series} activeId={seriesId} onChange={setSeriesId} />
+                  <SeriesFilter series={event.series} value={filter} onChange={setFilter} />
                   <StageSelector stages={stages} activeId={stageId} onChange={setStageId} />
                 </div>
 
@@ -47,7 +47,8 @@ export function OverallTab() {
                       <OverallTable
                         overall={overall}
                         stageCode={activeStage?.code ?? null}
-                        allowedClassIds={classIdsForSeries(event.series, seriesId)}
+                        allowedClassIds={allowedClassIds(event.series, filter)}
+                        className={selectedClassName(event.series, filter)}
                       />
                     )}
                   </ResourceBoundary>
@@ -65,28 +66,52 @@ function OverallTable({
   overall,
   stageCode,
   allowedClassIds,
+  className,
 }: {
   overall: RallyClassificationView
   stageCode: string | null
   allowedClassIds: Set<string> | null
+  /** Valitud üksiku klassi nimi; siis on koht ja vahe klassisisesed. */
+  className: string | null
 }) {
   const t = useT()
   const locale = useLocale()
-  const rows = allowedClassIds
+  const filtered = allowedClassIds
     ? overall.rows.filter((row) => row.classIds.some((id) => allowedClassIds.has(id)))
     : overall.rows
+  // Üksiku klassi vaates on koht ja vahe klassi sees: klassifitseeritud
+  // read on RallyLynxis juba koguaja järgi järjestatud, seega on klassi
+  // koht rea järjekorranumber ja vahe erinevus klassi liidri koguajast.
+  // Klassifitseerimata (position null) read jäävad kohata.
+  const classLeaderMs = className ? filtered.find((r) => r.position !== null)?.totalTimeMs ?? null : null
+  let rank = 0
+  const rows = className
+    ? filtered.map((row) => {
+        if (row.position === null) return row
+        rank += 1
+        return {
+          ...row,
+          position: rank,
+          gapToLeaderMs: classLeaderMs === null ? null : row.totalTimeMs - classLeaderMs,
+        }
+      })
+    : filtered
 
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <div>
           <h3 className="font-display text-lg font-bold uppercase text-black">
-            {stageCode ? t.live.overallAfter(stageCode) : t.live.overall}
+            {className ? t.live.classView(className) : stageCode ? t.live.overallAfter(stageCode) : t.live.overall}
+            {className && stageCode ? (
+              <span className="ml-2 text-sm font-semibold text-slate">{t.live.overallAfter(stageCode)}</span>
+            ) : null}
           </h3>
           <p className="mt-1 text-xs text-slate">
             {t.live.completedStages(overall.completedStageCount, overall.totalStageCount)} ·{' '}
             {t.live.sourceRallyLynx} · {t.live.updated} {formatUpdatedAt(overall.updatedAt, locale)}
           </p>
+          {className ? <p className="mt-1 text-xs text-slate">{t.live.classPositionsNote}</p> : null}
         </div>
         <span className="inline-flex items-center rounded-md border border-blue bg-gradient-to-b from-blue/[0.04] to-blue/[0.18] px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.06em] text-blue">
           {t.live.status[overall.status]}

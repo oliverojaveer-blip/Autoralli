@@ -4,29 +4,29 @@ import { useState } from 'react'
 import type { RallyCompetitorRow, RallyEventOverview } from '@/lib/rallylynx/adapter'
 import { useRallyLynxResource } from './use-rallylynx-resource'
 import { ResourceBoundary } from './resource-boundary'
-import { SeriesFilter, ALL_SERIES, classIdsForSeries } from './series-filter'
+import { SeriesFilter, DEFAULT_FILTER, allowedClassIds } from './series-filter'
 import { useT } from '../locale-provider'
 
 export function CompetitorsTab() {
   const t = useT()
   const eventState = useRallyLynxResource<RallyEventOverview>('/api/rallylynx/event')
   const competitorsState = useRallyLynxResource<RallyCompetitorRow[]>('/api/rallylynx/competitors')
-  const [seriesId, setSeriesId] = useState(ALL_SERIES)
+  const [filter, setFilter] = useState(DEFAULT_FILTER)
 
   return (
     <ResourceBoundary state={eventState}>
       {(event) => (
         <ResourceBoundary state={competitorsState}>
           {(competitors) => {
-            const allowedClassIds = classIdsForSeries(event.series, seriesId)
-            const rows = allowedClassIds
-              ? competitors.filter((c) => c.classIds.some((id) => allowedClassIds.has(id)))
+            const allowed = allowedClassIds(event.series, filter)
+            const rows = allowed
+              ? competitors.filter((c) => c.classIds.some((id) => allowed.has(id)))
               : competitors
 
             return (
               <div>
                 <div className="border-b border-line pb-6">
-                  <SeriesFilter series={event.series} activeId={seriesId} onChange={setSeriesId} />
+                  <SeriesFilter series={event.series} value={filter} onChange={setFilter} />
                 </div>
 
                 <div className="mt-8 hidden overflow-x-auto rounded-md border border-line sm:block">

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import type { RallyEventOverview, RallyStageResultsView, RallyStageView } from '@/lib/rallylynx/adapter'
 import { useRallyLynxResource } from './use-rallylynx-resource'
 import { ResourceBoundary } from './resource-boundary'
-import { SeriesFilter, ALL_SERIES, classIdsForSeries } from './series-filter'
+import { SeriesFilter, DEFAULT_FILTER, allowedClassIds } from './series-filter'
 import { StageSelector } from './stage-selector'
 import { formatDuration, formatGap } from './format'
 import { useT } from '../locale-provider'
@@ -15,7 +15,7 @@ export function StageTimesTab() {
   const stagesState = useRallyLynxResource<RallyStageView[]>('/api/rallylynx/stages')
 
   const [stageId, setStageId] = useState<string | null>(null)
-  const [seriesId, setSeriesId] = useState(ALL_SERIES)
+  const [filter, setFilter] = useState(DEFAULT_FILTER)
 
   useEffect(() => {
     if (stagesState.kind === 'ready' && stageId === null && stagesState.data.length > 0) {
@@ -35,7 +35,7 @@ export function StageTimesTab() {
           {(stages) => (
             <div>
               <div className="flex flex-col gap-4 border-b border-line pb-6">
-                <SeriesFilter series={event.series} activeId={seriesId} onChange={setSeriesId} />
+                <SeriesFilter series={event.series} value={filter} onChange={setFilter} />
                 <StageSelector stages={stages} activeId={stageId} onChange={setStageId} />
               </div>
 
@@ -44,7 +44,7 @@ export function StageTimesTab() {
                   {(stage) => (
                     <StageTimesTable
                       stage={stage}
-                      allowedClassIds={classIdsForSeries(event.series, seriesId)}
+                      allowedClassIds={allowedClassIds(event.series, filter)}
                     />
                   )}
                 </ResourceBoundary>
