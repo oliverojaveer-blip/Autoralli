@@ -41,6 +41,12 @@ export type RallyEvent = {
    * kaart otse sinna (uues aknas), mitte saidi enda platsihoidja lehele.
    */
   websiteUrl?: string
+  /**
+   * Valikuline, ajavõtupartneri (RallyLynx) leht, kus selle etapi
+   * tulemused / registreerimine avaldatakse. /tulemused plaat viib siia;
+   * kalender jääb korraldaja kodulehe (`websiteUrl`) juurde.
+   */
+  resultsUrl?: string
 }
 
 export const EVENTS: RallyEvent[] = [
@@ -102,6 +108,7 @@ export const EVENTS: RallyEvent[] = [
     },
     photo: { src: '/images/action-crowd.jpg', alt: { et: 'Pealtvaatajad jälgimas rallisõidukit', en: 'Spectators watching a rally car' } },
     websiteUrl: 'https://lounaeestirally.ee/',
+    resultsUrl: 'https://rallylynx.com/e/louna-eesti-ralli-26/results',
   },
   {
     id: 'ev-2026-05',
@@ -119,6 +126,7 @@ export const EVENTS: RallyEvent[] = [
     },
     photo: { src: '/images/action-speed.jpg', alt: { et: 'Rallisõiduk kiirel läbisõidul', en: 'Rally car at full speed' } },
     websiteUrl: 'https://paiderally.ee/',
+    resultsUrl: 'https://rallylynx.com/e/humus-paide-rally-2026/results',
   },
   {
     id: 'ev-2026-06',
@@ -136,6 +144,7 @@ export const EVENTS: RallyEvent[] = [
     },
     photo: { src: '/images/hero-rally.jpg', alt: { et: 'Rallisõiduk Eesti kiiruskatsel', en: 'Rally car on an Estonian special stage' } },
     websiteUrl: 'https://saaremaarally.eu/',
+    resultsUrl: 'https://rallylynx.com/e/saaremaa-rally-2026/registrations',
   },
 ]
 

@@ -11,8 +11,8 @@ import { getDictionary, localizedHref, pick, type Locale } from '@/lib/i18n'
  * kõrvuti). DOM-järjekord on tähtsuse järgi: järgmine ring, siis tulevased,
  * siis toimunud värskeimast alates — nii on telefonis ja ilma JS-ita
  * esimesena näha see, mida fänn otsib. Laial ekraanil paneb `order` kaardid tagasi kronoloogiliseks.
- * Toimunud ringid on tuhmid ja märgitud, järgmine ring kannab sinist
- * ülaserva ja ürituse embleemi. Andmed: `lib/events.ts`.
+ * Iga ring kannab oma embleemi (kui see on olemas); toimunud ringid on
+ * märgitud, mitte tuhmid, järgmine ring kannab sinist ülaserva. Andmed: `lib/events.ts`.
  */
 export function SeasonStrip({ locale }: { locale: Locale }) {
   const t = getDictionary(locale)
@@ -61,7 +61,7 @@ export function SeasonStrip({ locale }: { locale: Locale }) {
                         fill
                         sizes="(min-width: 1280px) 16vw, (min-width: 640px) 300px, 76vw"
                         className={`object-cover transition-opacity duration-300 ${
-                          isPast ? 'opacity-30 grayscale' : isNext ? 'opacity-80 group-hover:opacity-100' : 'opacity-55 group-hover:opacity-75'
+                          isNext ? 'opacity-80 group-hover:opacity-100' : 'opacity-60 group-hover:opacity-85'
                         }`}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/10" aria-hidden="true" />
@@ -87,7 +87,7 @@ export function SeasonStrip({ locale }: { locale: Locale }) {
                     </div>
 
                     <div className="relative flex flex-1 items-center justify-center px-6 py-2">
-                      {event.logo && !isPast ? (
+                      {event.logo ? (
                         <Image
                           src={event.logo.src}
                           alt={event.logo.alt}

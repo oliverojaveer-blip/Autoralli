@@ -34,10 +34,11 @@ function TileContent({ event, isActive }: { event: RallyEvent; isActive: boolean
 }
 
 /**
- * Iga plaat viib etapi enda ametlikule kodulehele, kus tulemused
- * avaldatakse — mitte väljamõeldud lehele. Etapid, millel pole veel
- * kinnitatud kodulehte (`websiteUrl`), näidatakse logoga, aga
- * mitteklikitavana (claude.md: ära suuna kasutajat olematule allikale).
+ * Iga plaat viib etapi tulemuste lehele: eelistatult ajavõtupartneri
+ * RallyLynxi lehele (`resultsUrl`), selle puudumisel etapi enda
+ * kodulehele (`websiteUrl`). Etapid, millel pole kumbagi, näidatakse
+ * logoga, aga mitteklikitavana (claude.md: ära suuna kasutajat
+ * olematule allikale).
  *
  * Mobiilis käitub riba "coverflow" moel (nagu avalehe kalendririba):
  * kesksel logol on värv ja 1,1x suurus, ülejäänud on hallskaalas.
@@ -55,8 +56,9 @@ function ResultsTile({
 }) {
   const t = useT()
   const scaleClass = isActive ? 'scale-110' : 'scale-100'
+  const href = event.resultsUrl ?? event.websiteUrl
 
-  if (!event.websiteUrl) {
+  if (!href) {
     return (
       <li
         ref={setRef}
@@ -78,7 +80,7 @@ function ResultsTile({
       className={`shrink-0 snap-center transition-transform duration-300 ease-forward sm:scale-100 ${scaleClass}`}
     >
       <Link
-        href={event.websiteUrl}
+        href={href}
         target="_blank"
         rel="noopener noreferrer"
         className="group relative block"

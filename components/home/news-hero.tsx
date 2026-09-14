@@ -127,7 +127,7 @@ export function NewsHero({
 
             <div className="absolute inset-x-0 bottom-0 z-30 p-5 pb-16 sm:p-8 sm:pb-20 lg:p-10 lg:pb-24">
               <div key={active.id} className={reduced || prevIndex === null ? '' : 'rise-in'}>
-                <h3 className="max-w-[16ch] text-balance font-display text-3xl font-bold uppercase leading-[0.96] sm:text-4xl lg:text-[3.25rem] xl:text-[3.75rem]">
+                <h3 className="max-w-[18ch] text-balance font-display text-3xl/[1.02] font-bold uppercase sm:text-4xl/[1.02] lg:text-[2.75rem]/[1.02] xl:text-[3.25rem]/[1.02]">
                   {active.title}
                 </h3>
                 <p className="mt-3 text-[14px] text-white/75">
