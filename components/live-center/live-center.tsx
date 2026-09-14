@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { OverallTab } from './overall-tab'
+import { BlogTab } from './blog-tab'
 import { StageTimesTab } from './stage-times-tab'
 import { SplitTimesTab } from './split-times-tab'
 import { StageWinnersTab } from './stage-winners-tab'
@@ -15,6 +16,7 @@ import { useT } from '../locale-provider'
 
 const TABS = [
   { id: 'overall', labelKey: 'overall', Component: OverallTab },
+  { id: 'blog', labelKey: 'blog', Component: BlogTab },
   { id: 'stage-times', labelKey: 'stageTimes', Component: StageTimesTab },
   { id: 'splits', labelKey: 'splits', Component: SplitTimesTab },
   { id: 'winners', labelKey: 'winners', Component: StageWinnersTab },
