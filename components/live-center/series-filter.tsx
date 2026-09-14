@@ -77,16 +77,18 @@ export function SeriesFilter({
       </div>
 
       {classes.length > 0 ? (
-        <div className="shrink-0">
+        <div className="flex shrink-0 flex-col">
           <label htmlFor={selectId} className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate">
             {t.live.classLabel}
           </label>
-          <div className="relative mt-1.5 ml-1 inline-flex skew-x-[-19deg] border border-line bg-white transition-colors focus-within:border-blue hover:border-blue">
+          {/* Sirge raam, mitte lipulõige: natiivne rippmenüü avaneb raami
+              alla ja kaldus serv ei klapi sellega. */}
+          <div className="relative mt-1.5 inline-flex border border-line bg-white transition-colors focus-within:border-blue hover:border-blue">
             <select
               id={selectId}
               value={value.classId}
               onChange={(e) => onChange({ ...value, classId: e.target.value })}
-              className="min-h-[44px] skew-x-[19deg] cursor-pointer appearance-none bg-transparent py-2 pl-4 pr-10 text-[12px] font-bold uppercase tracking-[0.08em] text-black focus:outline-none"
+              className="min-h-[42px] cursor-pointer appearance-none bg-transparent py-2 pl-4 pr-10 text-[12px] font-bold uppercase tracking-[0.08em] text-black focus:outline-none"
             >
               <option value={ALL_CLASSES}>{t.common.all}</option>
               {classes.map((c) => (
@@ -99,7 +101,7 @@ export function SeriesFilter({
               size={14}
               weight="bold"
               aria-hidden="true"
-              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 skew-x-[19deg] text-slate"
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate"
             />
           </div>
         </div>
