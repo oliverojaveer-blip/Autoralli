@@ -293,7 +293,7 @@ async function publishFromMessage(chatId: number, c: Contributor, m: TgMessage, 
   const post = await createPost({ ...base, kind, embedUrl: kind === 'embed' ? url : null, image, video })
 
   if (status === 'published') {
-    return await sendMessage(chatId, msg.posted(stageCode, `${SITE_URL}/otse#blogi`), { replyTo: m.message_id })
+    return await sendMessage(chatId, msg.posted(stageCode, `${SITE_URL}/otse#otseblogi`), { replyTo: m.message_id })
   }
 
   await sendMessage(chatId, msg.queued(stageCode), { replyTo: m.message_id })

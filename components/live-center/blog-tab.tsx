@@ -59,6 +59,7 @@ export function BlogTab() {
             <TabHeader
               title={t.live.blog.title}
               detail={t.live.blog.postCount(view.posts.length)}
+              source={t.live.blog.source}
               updatedAt={view.generatedAt}
               note={
                 view.sample ? (

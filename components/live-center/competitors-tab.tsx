@@ -30,7 +30,7 @@ export function CompetitorsTab() {
                 </div>
 
                 <div className="mt-6">
-                  <TabHeader title={t.live.tabs.startList} detail={t.live.crewCount(rows.length)} />
+                  <TabHeader source={t.live.sourceRallyLynx} title={t.live.tabs.startList} detail={t.live.crewCount(rows.length)} />
 
                   <div className={TABLE_WRAP}>
                     <table className={`${TABLE} min-w-[640px]`}>

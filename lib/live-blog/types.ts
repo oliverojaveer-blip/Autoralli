@@ -29,6 +29,8 @@ export type LiveBlogView = {
   eventId: string
   eventName: string
   hashtags: string[]
+  /** YouTube’i otseülekanne (rallyEvent.broadcastUrl) või null. */
+  broadcastUrl: string | null
   posts: LiveBlogPost[]
   /** Millal see vastus koostati; leht küsib `?since=` abil ainult uuemaid. */
   generatedAt: string

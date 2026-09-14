@@ -45,6 +45,13 @@ export const rallyEvent = defineType({
       description: 'Ilma #-ta, nt EMV2026, SaaremaaRalli. Näidatakse blogi päises üleskutsena.',
     }),
     defineField({
+      name: 'broadcastUrl',
+      title: 'Otseülekande YouTube link',
+      type: 'url',
+      description: 'YouTube’i otseülekande või video link (nt https://www.youtube.com/watch?v=…). Näidatakse /otse → Otseülekanne. Tühi = „ülekannet ei ole“.',
+      validation: (r) => r.uri({ scheme: ['https'] }),
+    }),
+    defineField({
       name: 'blogEnabled',
       title: 'Otseblogi on avatud',
       type: 'boolean',

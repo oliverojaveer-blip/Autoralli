@@ -93,7 +93,7 @@ function StageTimesTable({
 
   return (
     <div>
-      <TabHeader
+      <TabHeader source={t.live.sourceRallyLynx}
         title={
           <>
             {stage.code}

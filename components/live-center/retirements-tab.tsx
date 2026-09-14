@@ -19,7 +19,7 @@ export function RetirementsTab() {
     <ResourceBoundary state={state}>
       {(rows) => (
         <div>
-          <TabHeader title={t.live.tabs.retirements} updatedAt={state.kind === 'ready' ? new Date(state.fetchedAt).toISOString() : null} />
+          <TabHeader source={t.live.sourceRallyLynx} title={t.live.tabs.retirements} updatedAt={state.kind === 'ready' ? new Date(state.fetchedAt).toISOString() : null} />
           {rows.length === 0 ? (
             <div className={EMPTY_BOX}>{t.live.noRetirements}</div>
           ) : (

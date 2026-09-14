@@ -52,17 +52,21 @@ export function StatusMarker({ status, onDark = false }: { status: ResultStatus;
 /**
  * Iga vaate päis: pealkiri, selle all rida allika, uuendusaja ja
  * staatusega (claude.md: tulemuse juures peab olema allikas ja viimase
- * uuenduse aeg) — mitte silt pealkirja kohal.
+ * uuenduse aeg) — mitte silt pealkirja kohal. Allikas on vaate oma:
+ * ajavõtuvaated ütlevad RallyLynx, blogi ütleb kaasautorid.
  */
 export function TabHeader({
   title,
   detail,
+  source,
   updatedAt,
   status,
   note,
 }: {
   title: ReactNode
   detail?: ReactNode
+  /** Andmete allikas selle vaate jaoks (nt "allikas RallyLynx"); ilma selleta allikat ei näidata. */
+  source?: string
   updatedAt?: string | null
   status?: ResultStatus
   note?: ReactNode
@@ -74,7 +78,7 @@ export function TabHeader({
       <h3 className="font-display text-2xl font-bold uppercase leading-none text-black">{title}</h3>
       <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-slate">
         {detail ? <span>{detail}</span> : null}
-        <span>{t.live.sourceRallyLynx}</span>
+        {source ? <span>{source}</span> : null}
         {updatedAt !== undefined ? (
           <span>
             {t.live.updated} <span className="tnum">{formatUpdatedAt(updatedAt, locale)}</span>

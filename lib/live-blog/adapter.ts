@@ -25,7 +25,7 @@ const builder = imageUrlBuilder(sanityClient)
 /** Võistlus, mille blogi on avatud — eelistatult käimasolev/viimane. */
 const EVENT_QUERY = defineQuery(`
   *[_type == "rallyEvent" && blogEnabled == true] | order(startsAt desc)[0]{
-    _id, eventId, name, hashtags
+    _id, eventId, name, hashtags, broadcastUrl
   }
 `)
 
@@ -105,6 +105,7 @@ export async function fetchLiveBlog(): Promise<LiveBlogView & { sample: boolean 
     eventId: event.eventId,
     eventName: event.name,
     hashtags: event.hashtags ?? [],
+    broadcastUrl: event.broadcastUrl ?? null,
     posts: docs.map((d) => toPost(d, event.eventId)),
     generatedAt: new Date().toISOString(),
     sample: false,

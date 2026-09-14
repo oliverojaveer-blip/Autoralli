@@ -56,7 +56,7 @@ function SplitTimesTable({
     : stage.rows
 
   const header = (
-    <TabHeader
+    <TabHeader source={t.live.sourceRallyLynx}
       title={
         <>
           {t.live.tabs.splits}

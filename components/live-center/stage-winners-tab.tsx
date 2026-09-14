@@ -19,7 +19,7 @@ export function StageWinnersTab() {
     <ResourceBoundary state={state}>
       {(rows) => (
         <div>
-          <TabHeader title={t.live.tabs.winners} updatedAt={state.kind === 'ready' ? new Date(state.fetchedAt).toISOString() : null} />
+          <TabHeader source={t.live.sourceRallyLynx} title={t.live.tabs.winners} updatedAt={state.kind === 'ready' ? new Date(state.fetchedAt).toISOString() : null} />
 
           <div className={TABLE_WRAP}>
             <table className={`${TABLE} min-w-[560px]`}>

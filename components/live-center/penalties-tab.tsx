@@ -20,7 +20,7 @@ export function PenaltiesTab() {
     <ResourceBoundary state={state}>
       {(rows) => (
         <div>
-          <TabHeader title={t.live.tabs.penalties} updatedAt={state.kind === 'ready' ? new Date(state.fetchedAt).toISOString() : null} />
+          <TabHeader source={t.live.sourceRallyLynx} title={t.live.tabs.penalties} updatedAt={state.kind === 'ready' ? new Date(state.fetchedAt).toISOString() : null} />
           {rows.length === 0 ? (
             <div className={EMPTY_BOX}>{t.live.noPenalties}</div>
           ) : (

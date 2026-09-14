@@ -103,7 +103,7 @@ function OverallTable({
 
   return (
     <div>
-      <TabHeader
+      <TabHeader source={t.live.sourceRallyLynx}
         title={
           <>
             {className ? t.live.classView(className) : t.live.overall}

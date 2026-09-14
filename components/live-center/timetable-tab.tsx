@@ -37,7 +37,7 @@ export function TimetableTab() {
     <ResourceBoundary state={state}>
       {(days) => (
         <div>
-          <TabHeader title={t.live.tabs.timetable} />
+          <TabHeader source={t.live.sourceRallyLynx} title={t.live.tabs.timetable} />
           <div className="flex flex-col gap-8">
             {days.map((day) => (
               <div key={day.dayId}>

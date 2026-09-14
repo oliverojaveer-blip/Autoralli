@@ -10,6 +10,7 @@ export const LIVE_BLOG_FIXTURE: LiveBlogView = {
   eventId: 'ev-2026-05',
   eventName: 'Humus Paide Rally 2026',
   hashtags: ['EMV2026', 'PaideRally'],
+  broadcastUrl: null,
   generatedAt: '2026-08-22T18:10:00+03:00',
   posts: [
     {

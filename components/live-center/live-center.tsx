@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { OverallTab } from './overall-tab'
 import { BlogTab } from './blog-tab'
+import { BroadcastTab } from './broadcast-tab'
 import { StageTimesTab } from './stage-times-tab'
 import { SplitTimesTab } from './split-times-tab'
 import { StageWinnersTab } from './stage-winners-tab'
@@ -14,112 +15,152 @@ import { RetirementsTab } from './retirements-tab'
 import { ChipStrip, Chip } from './chip-strip'
 import { useT } from '../locale-provider'
 
-const TABS = [
-  { id: 'overall', labelKey: 'overall', Component: OverallTab },
-  { id: 'blog', labelKey: 'blog', Component: BlogTab },
-  { id: 'stage-times', labelKey: 'stageTimes', Component: StageTimesTab },
-  { id: 'splits', labelKey: 'splits', Component: SplitTimesTab },
-  { id: 'winners', labelKey: 'winners', Component: StageWinnersTab },
-  { id: 'timetable', labelKey: 'timetable', Component: TimetableTab },
-  { id: 'start-list', labelKey: 'startList', Component: CompetitorsTab },
-  { id: 'penalties', labelKey: 'penalties', Component: PenaltiesTab },
-  { id: 'retirements', labelKey: 'retirements', Component: RetirementsTab },
+/**
+ * Live Center on kolm osa, mis on eri allikatega ja eri asjad:
+ *   Tulemused    — ajavõtt RallyLynxist (kaheksa vaadet)
+ *   Otseülekanne — YouTube
+ *   Otseblogi    — autoralli.ee kaasautorid
+ * RallyLynxi nimi käib ainult tulemuste all; blogil ja ülekandel on oma
+ * allikas. Sektsioon on ülemine tume riba; tulemuste sees on teine riba
+ * kaheksa ajavõtuvaatega.
+ */
+const TIMING_VIEWS = [
+  { id: 'overall', labelKey: 'overall', hash: 'uldarvestus', Component: OverallTab },
+  { id: 'stage-times', labelKey: 'stageTimes', hash: 'katseajad', Component: StageTimesTab },
+  { id: 'splits', labelKey: 'splits', hash: 'vaheajad', Component: SplitTimesTab },
+  { id: 'winners', labelKey: 'winners', hash: 'katsevoitjad', Component: StageWinnersTab },
+  { id: 'timetable', labelKey: 'timetable', hash: 'ajatabel', Component: TimetableTab },
+  { id: 'start-list', labelKey: 'startList', hash: 'startinimekiri', Component: CompetitorsTab },
+  { id: 'penalties', labelKey: 'penalties', hash: 'karistused', Component: PenaltiesTab },
+  { id: 'retirements', labelKey: 'retirements', hash: 'katkestajad', Component: RetirementsTab },
 ] as const
 
-type TabId = (typeof TABS)[number]['id']
+type TimingId = (typeof TIMING_VIEWS)[number]['id']
+type SectionId = 'timing' | 'broadcast' | 'blog'
 
-/** Aadressiriba ankrud (eestikeelsed, nagu URL-id mujal saidil). */
-const HASH: Record<TabId, string> = {
-  overall: 'uldarvestus',
-  blog: 'blogi',
-  'stage-times': 'katseajad',
-  splits: 'vaheajad',
-  winners: 'katsevoitjad',
-  timetable: 'ajatabel',
-  'start-list': 'startinimekiri',
-  penalties: 'karistused',
-  retirements: 'katkestajad',
-}
+const SECTION_HASH: Record<SectionId, string> = { timing: 'tulemused', broadcast: 'otseulekanne', blog: 'otseblogi' }
 
-function tabFromHash(hash: string): TabId | null {
+/** Ankur → (sektsioon, ajavõtuvaade). Tunneb ka vanu ankruid (#blogi, #katseajad). */
+function fromHash(hash: string): { section: SectionId; view: TimingId } | null {
   const key = hash.replace(/^#/, '').toLowerCase()
-  const found = (Object.keys(HASH) as TabId[]).find((id) => HASH[id] === key || id === key)
-  return found ?? null
+  if (!key) return null
+  if (key === 'otseblogi' || key === 'blogi' || key === 'blog') return { section: 'blog', view: 'overall' }
+  if (key === 'otseulekanne' || key === 'broadcast') return { section: 'broadcast', view: 'overall' }
+  if (key === 'tulemused' || key === 'timing') return { section: 'timing', view: 'overall' }
+  const view = TIMING_VIEWS.find((v) => v.hash === key || v.id === key)
+  return view ? { section: 'timing', view: view.id } : null
 }
 
-/**
- * RallyLynx-põhine tulemuste keskus /otse lehel. Vahekaardid vastavad
- * otse API endpointidele — igaüks laeb ja uuendab oma andmeid ise;
- * võistluse ülevaade ja katsete nimekiri tulevad ühisest kontekstist
- * (`LiveSelectionProvider`, lehel bar'i ja keskuse ümber).
- *
- * Vahekaardiriba on tume, päise alla kleepuv juhtriba lipulõikega
- * plaatidest — sama grammatika, mis päisel ja avalehe kiirlinkidel.
- * Ainult see riba on `tablist`; paneel on `tabpanel`, mis viitab tagasi.
- */
 export function LiveCenter() {
   const t = useT()
-  const [activeId, setActiveId] = useState<TabId>('overall')
-  const active = TABS.find((tab) => tab.id === activeId) ?? TABS[0]
+  const [section, setSection] = useState<SectionId>('timing')
+  const [view, setView] = useState<TimingId>('overall')
+  const active = TIMING_VIEWS.find((v) => v.id === view) ?? TIMING_VIEWS[0]
 
-  // Süvalink: /otse#blogi, /otse#katseajad … avab vahekaardi; valik
-  // kirjutatakse aadressiribale, et lingi saaks edasi saata.
+  // Süvalingid: /otse#otseblogi, #otseulekanne, #katseajad … Aadressiriba
+  // järgib valikut, et linki saaks edasi saata.
   useEffect(() => {
-    const fromHash = tabFromHash(window.location.hash)
-    if (fromHash) setActiveId(fromHash)
-    const onHash = () => {
-      const id = tabFromHash(window.location.hash)
-      if (id) setActiveId(id)
+    const apply = () => {
+      const parsed = fromHash(window.location.hash)
+      if (parsed) {
+        setSection(parsed.section)
+        setView(parsed.view)
+      }
     }
-    window.addEventListener('hashchange', onHash)
-    return () => window.removeEventListener('hashchange', onHash)
+    apply()
+    window.addEventListener('hashchange', apply)
+    return () => window.removeEventListener('hashchange', apply)
   }, [])
 
-  const selectTab = (id: TabId) => {
-    setActiveId(id)
-    window.history.replaceState(null, '', `#${HASH[id]}`)
+  const selectSection = (id: SectionId) => {
+    setSection(id)
+    window.history.replaceState(null, '', `#${id === 'timing' ? active.hash : SECTION_HASH[id]}`)
   }
+  const selectView = (id: TimingId) => {
+    setView(id)
+    const v = TIMING_VIEWS.find((x) => x.id === id) ?? TIMING_VIEWS[0]
+    window.history.replaceState(null, '', `#${v.hash}`)
+  }
+
+  const sections: Array<{ id: SectionId; label: string }> = [
+    { id: 'timing', label: t.live.sections.timing },
+    { id: 'broadcast', label: t.live.sections.broadcast },
+    { id: 'blog', label: t.live.sections.blog },
+  ]
 
   return (
     <div>
+      {/* Ülemine riba: kolm osa. Kleepub päise alla. */}
       <div className="sticky top-16 z-40 border-b border-white/10 bg-midnight sm:top-[72px]">
         <div className="shell">
-          <ChipStrip ariaLabel={t.live.chooseView} role="tablist" tone="dark" className="py-3">
-            {TABS.map((tab) => (
+          <ChipStrip ariaLabel={t.live.chooseSection} role="tablist" tone="dark" className="py-3">
+            {sections.map((s) => (
               <Chip
-                key={tab.id}
-                id={`live-tab-${tab.id}`}
+                key={s.id}
+                id={`live-section-${s.id}`}
                 controls="live-panel"
-                active={tab.id === activeId}
-                onClick={() => selectTab(tab.id)}
+                active={s.id === section}
+                onClick={() => selectSection(s.id)}
               >
-                {t.live.tabs[tab.labelKey]}
+                {s.label}
               </Chip>
             ))}
           </ChipStrip>
         </div>
       </div>
 
+      {/* Tulemuste sees: ajavõtuvaated. Hele, sest see on juba ajavõtuleht. */}
+      {section === 'timing' ? (
+        <div className="border-b border-line bg-mist">
+          <div className="shell">
+            <ChipStrip ariaLabel={t.live.chooseView} role="tablist" className="py-2">
+              {TIMING_VIEWS.map((v) => (
+                <Chip
+                  key={v.id}
+                  id={`live-view-${v.id}`}
+                  controls="live-panel"
+                  active={v.id === view}
+                  onClick={() => selectView(v.id)}
+                >
+                  {t.live.tabs[v.labelKey]}
+                </Chip>
+              ))}
+            </ChipStrip>
+          </div>
+        </div>
+      ) : null}
+
       <div className="shell">
-        <div id="live-panel" role="tabpanel" aria-labelledby={`live-tab-${active.id}`} className="pt-6" tabIndex={0}>
-          <active.Component />
+        <div
+          id="live-panel"
+          role="tabpanel"
+          aria-labelledby={section === 'timing' ? `live-view-${active.id}` : `live-section-${section}`}
+          className="pt-6"
+          tabIndex={0}
+        >
+          {section === 'timing' ? <active.Component /> : section === 'broadcast' ? <BroadcastTab /> : <BlogTab />}
         </div>
 
-        <a
-          href="https://rallylynx.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mb-16 mt-10 inline-flex items-center gap-3 border-t border-line pt-6 text-[12px] font-semibold uppercase tracking-[0.14em] text-slate transition-colors hover:text-black"
-        >
-          {t.results.poweredBy}
-          <Image
-            src="/images/partners/rallylynx-logo.png"
-            alt="RallyLynx"
-            width={1024}
-            height={551}
-            className="h-7 w-auto object-contain"
-          />
-        </a>
+        {/* Ajavõtupartneri tunnustus ainult tulemuste all — blogil ja ülekandel on oma allikas. */}
+        {section === 'timing' ? (
+          <a
+            href="https://rallylynx.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mb-16 mt-10 inline-flex items-center gap-3 border-t border-line pt-6 text-[12px] font-semibold uppercase tracking-[0.14em] text-slate transition-colors hover:text-black"
+          >
+            {t.results.poweredBy}
+            <Image
+              src="/images/partners/rallylynx-logo.png"
+              alt="RallyLynx"
+              width={1024}
+              height={551}
+              className="h-7 w-auto object-contain"
+            />
+          </a>
+        ) : (
+          <div className="mb-16" />
+        )}
       </div>
     </div>
   )
