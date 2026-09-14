@@ -32,6 +32,8 @@ export type LiveBlogView = {
   posts: LiveBlogPost[]
   /** Millal see vastus koostati; leht küsib `?since=` abil ainult uuemaid. */
   generatedAt: string
+  /** true = näidisandmed (Sanity seadistamata või blogi avamata). */
+  sample?: boolean
 }
 
 /** Tunneb URL-ist ära platvormi ja konto, et kaart saaks öelda "Instagram · @…" enne laadimist. */

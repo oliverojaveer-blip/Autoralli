@@ -1,4 +1,4 @@
-import { defineField, defineType } from '../schema-types'
+import { defineField, defineType } from 'sanity'
 
 /**
  * ============================================================================

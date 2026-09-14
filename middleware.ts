@@ -26,6 +26,6 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Ei puuduta API-t, Next'i sisemisi teid ega staatilisi faile (laiendiga).
-  matcher: ['/((?!api|_next|.*\\..*).*)'],
+  // Ei puuduta API-t, Sanity Studiot, Next'i sisemisi teid ega staatilisi faile (laiendiga).
+  matcher: ['/((?!api|studio|_next|.*\\..*).*)'],
 }

@@ -60,6 +60,15 @@ export function BlogTab() {
               title={t.live.blog.title}
               detail={t.live.blog.postCount(view.posts.length)}
               updatedAt={view.generatedAt}
+              note={
+                view.sample ? (
+                  <span className="inline-flex items-center gap-2">
+                    <span className="bg-checker h-3 w-3 text-caution" aria-hidden="true" />
+                    <strong className="font-bold uppercase tracking-[0.1em] text-caution">{t.home.standingsSample}:</strong>{' '}
+                    {t.live.blog.sampleNote}
+                  </span>
+                ) : undefined
+              }
             />
 
             {/* Üleskutse publikule: nemad postitavad Instagrami, kuraator toob parimad siia. */}

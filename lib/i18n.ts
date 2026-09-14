@@ -292,6 +292,7 @@ const et = {
       showPost: 'Näita postitust',
       openOn: (platform: string) => `Ava ${platform}-s`,
       embedNote: 'Laetakse klõpsuga (kolmanda osapoole sisu ja küpsised).',
+      sampleNote: 'Postitused on väljamõeldud. Päris blogi avaneb, kui võistlusel on Sanitys „Otseblogi on avatud“.',
     },
     retirementReason: {
       mechanical: 'Tehniline rike',
@@ -657,6 +658,7 @@ const en = {
       showPost: 'Show post',
       openOn: (platform: string) => `Open on ${platform}`,
       embedNote: 'Loads on tap (third-party content and cookies).',
+      sampleNote: 'These posts are made up. The real blog opens once a rally has “live blog enabled” in Sanity.',
     },
     retirementReason: {
       mechanical: 'Mechanical',
