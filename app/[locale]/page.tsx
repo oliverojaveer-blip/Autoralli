@@ -11,6 +11,7 @@ import { NewsGrid } from '@/components/home/news-grid'
 import { JoinBand } from '@/components/home/join-band'
 import { nextEvent } from '@/lib/events'
 import { getEvents } from '@/lib/events-source'
+import { getStandings } from '@/lib/standings-source'
 import { fetchRallyNews, type NewsArticleView } from '@/lib/autosport/adapter'
 import { getDictionary } from '@/lib/i18n'
 import { pageMetadata, toLocale, type LocaleParams } from '@/lib/page-metadata'
@@ -36,6 +37,7 @@ export default async function Home({ params }: LocaleParams) {
   const t = getDictionary(locale)
   const events = await getEvents()
   const next = nextEvent(events)
+  const standings = await getStandings(events)
   const roundNumber = events.findIndex((e) => e.id === next.id) + 1
   // Päevade arv serverist, et riba kõige olulisem number oleks olemas ka
   // ilma JS-ita; tunnid-minutid-sekundid jooksevad kliendis.
@@ -75,7 +77,7 @@ export default async function Home({ params }: LocaleParams) {
           </p>
         )}
         <SeasonStrip locale={locale} events={events} />
-        <StandingsBrief locale={locale} />
+        <StandingsBrief locale={locale} view={standings} />
         <NewsGrid articles={grid} locale={locale} />
         <JoinBand locale={locale} />
       </main>

@@ -2,7 +2,10 @@
 
 import { useState } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
-import { STANDINGS, STANDINGS_EVENT_CODES, type StandingsClass } from '@/lib/standings'
+import type { StandingsClass } from '@/lib/standings'
+import type { StandingsView } from '@/lib/standings-source'
+import { useLocale } from './locale-provider'
+import { formatLongDate } from '@/lib/dates'
 import { useT } from './locale-provider'
 
 function formatPoints(value: number | null) {
@@ -10,7 +13,7 @@ function formatPoints(value: number | null) {
   return value.toString().replace('.', ',')
 }
 
-function ClassTable({ cls }: { cls: StandingsClass }) {
+function ClassTable({ cls, eventCodes }: { cls: StandingsClass; eventCodes: string[] }) {
   const t = useT()
   if (cls.rows.length === 0) {
     return (
@@ -33,7 +36,7 @@ function ClassTable({ cls }: { cls: StandingsClass }) {
               <th className="px-4 py-3">{t.results.crew}</th>
               <th className="px-4 py-3">{t.results.entrant}</th>
               <th className="px-4 py-3">{t.results.car}</th>
-              {STANDINGS_EVENT_CODES.map((code) => (
+              {eventCodes.map((code) => (
                 <th key={code} className="w-14 px-2 py-3 text-center font-mono">
                   {code}
                 </th>
@@ -84,7 +87,7 @@ function ClassTable({ cls }: { cls: StandingsClass }) {
             </div>
             <p className="mt-2 text-xs text-slate">{row.car}</p>
             <div className="mt-3 grid grid-cols-6 gap-1 border-t border-line pt-3">
-              {STANDINGS_EVENT_CODES.map((code, i) => (
+              {eventCodes.map((code, i) => (
                 <div key={code} className="text-center">
                   <p className="font-mono text-[10px] uppercase text-slate/70">{code}</p>
                   <p className="mt-0.5 font-mono text-xs tabular-nums text-black">
@@ -100,17 +103,20 @@ function ClassTable({ cls }: { cls: StandingsClass }) {
   )
 }
 
-export function StandingsTable() {
+export function StandingsTable({ view }: { view: StandingsView }) {
   const t = useT()
-  const [activeId, setActiveId] = useState(STANDINGS[0].classId)
+  const locale = useLocale()
+  const { classes, eventCodes } = view
+  const [activeId, setActiveId] = useState(classes[0]?.classId ?? '')
   const reducedMotionRaw = useReducedMotion()
   const reducedMotion = reducedMotionRaw ?? false
-  const active = STANDINGS.find((c) => c.classId === activeId) ?? STANDINGS[0]
+  const active = classes.find((c) => c.classId === activeId) ?? classes[0]
+  if (!active) return <p className="border border-line bg-mist px-6 py-16 text-center text-sm font-semibold text-slate">{t.common.dataComingSoon}</p>
 
   return (
     <div>
       <div role="tablist" aria-label={t.results.classAria} className="flex flex-wrap gap-2">
-        {STANDINGS.map((cls) => {
+        {classes.map((cls) => {
           const isActive = cls.classId === activeId
           return (
             <button
@@ -140,8 +146,32 @@ export function StandingsTable() {
         })}
       </div>
 
-      <div className="mt-8">
-        <ClassTable cls={active} />
+      <p className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-slate">
+        {view.sample ? (
+          <span className="inline-flex items-center gap-2">
+            <span className="bg-checker h-3 w-3 text-caution" aria-hidden="true" />
+            <strong className="font-bold uppercase tracking-[0.1em] text-caution">{t.home.standingsSample}:</strong> {t.home.standingsSampleNote}
+          </span>
+        ) : (
+          <>
+            {view.source ? (
+              view.sourceUrl ? (
+                <a href={view.sourceUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-blue hover:text-black">
+                  {t.common.source}: {view.source}
+                </a>
+              ) : (
+                <span>{t.common.source}: {view.source}</span>
+              )
+            ) : null}
+            {view.updatedAt ? <span>{t.live.updated} <span className="tnum">{formatLongDate(view.updatedAt, locale)}</span></span> : null}
+            {view.afterEventName ? <span>{t.live.after(view.afterEventName)}</span> : null}
+            {view.status ? <span className="font-bold uppercase tracking-[0.1em]">{t.live.status[view.status]}</span> : null}
+          </>
+        )}
+      </p>
+
+      <div className="mt-6">
+        <ClassTable cls={active} eventCodes={eventCodes} />
       </div>
     </div>
   )

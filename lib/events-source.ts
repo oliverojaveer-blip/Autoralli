@@ -26,7 +26,7 @@ const builder = imageUrlBuilder(sanityClient)
 
 const EVENTS_QUERY = defineQuery(`
   *[_type == "rallyEvent" && season == $season] | order(startsAt asc){
-    eventId, name, series, startsAt, endsAt, locationEt, locationEn, websiteUrl, resultsUrl,
+    eventId, name, series, startsAt, endsAt, locationEt, locationEn, websiteUrl, resultsUrl, shortCode,
     logo{ asset->{ url, metadata{ dimensions{ width, height } } } },
     photo{ asset->{ url } },
     photoAltEt, photoAltEn
@@ -43,6 +43,7 @@ type SanityEvent = {
   locationEn: string | null
   websiteUrl: string | null
   resultsUrl: string | null
+  shortCode: string | null
   logo: { asset: { url: string; metadata: { dimensions: { width: number; height: number } } } | null } | null
   photo: { asset: { url: string } | null } | null
   photoAltEt: string | null
@@ -77,6 +78,7 @@ function toEvent(doc: SanityEvent, now: number): RallyEvent {
       : FALLBACK_PHOTO,
     websiteUrl: doc.websiteUrl ?? undefined,
     resultsUrl: doc.resultsUrl ?? undefined,
+    shortCode: doc.shortCode ?? undefined,
   }
 }
 

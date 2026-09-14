@@ -47,6 +47,8 @@ export type RallyEvent = {
    * kalender jääb korraldaja kodulehe (`websiteUrl`) juurde.
    */
   resultsUrl?: string
+  /** Valikuline lühikood punktitabeli veerupäiseks (nt SAR); muidu tuletatakse nimest. */
+  shortCode?: string
 }
 
 export const EVENTS: RallyEvent[] = [

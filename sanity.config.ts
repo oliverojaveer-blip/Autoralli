@@ -1,6 +1,7 @@
 import { defineConfig } from 'sanity'
 import { structureTool } from 'sanity/structure'
 import { liveBlogSchemas } from './sanity/schemas/live-blog'
+import { standingsSchemas } from './sanity/schemas/standings'
 import { apiVersion, dataset, projectId } from './sanity/env'
 import { anonymiseAuthorAction, deleteAuthorAction } from './sanity/actions/author-actions'
 
@@ -41,10 +42,11 @@ export default defineConfig({
                   ]),
               ),
             S.documentTypeListItem('rallyEvent').title('Võistlused'),
+            S.documentTypeListItem('standingsTable').title('Punktiseis'),
           ]),
     }),
   ],
-  schema: { types: liveBlogSchemas },
+  schema: { types: [...liveBlogSchemas, ...standingsSchemas] },
   document: {
     // Autoril on kaskaad-kustutamine ja GDPR-anonümiseerimine; vaikimisi
     // "Delete" jääks postituste viidete taha kinni.

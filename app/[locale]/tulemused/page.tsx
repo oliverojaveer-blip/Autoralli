@@ -8,6 +8,7 @@ import { SeasonSelector } from '@/components/season-selector'
 import { getDictionary } from '@/lib/i18n'
 import { pageMetadata, toLocale, type LocaleParams } from '@/lib/page-metadata'
 import { getEvents } from '@/lib/events-source'
+import { getStandings } from '@/lib/standings-source'
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const locale = toLocale((await params).locale)
@@ -24,6 +25,7 @@ export default async function TulemusedPage({ params }: LocaleParams) {
   const locale = toLocale((await params).locale)
   const t = getDictionary(locale)
   const events = await getEvents()
+  const standings = await getStandings(events)
 
   return (
     <>
@@ -72,7 +74,7 @@ export default async function TulemusedPage({ params }: LocaleParams) {
               {t.results.standingsTitle}
             </h2>
             <div className="mt-10">
-              <StandingsTable />
+              <StandingsTable view={standings} />
             </div>
           </div>
         </section>

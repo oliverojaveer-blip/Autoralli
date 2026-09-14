@@ -46,6 +46,7 @@ export const rallyEvent = defineType({
     defineField({ name: 'photoAltEt', title: 'Foto kirjeldus (et)', type: 'string' }),
     defineField({ name: 'photoAltEn', title: 'Foto kirjeldus (en)', type: 'string' }),
     defineField({ name: 'websiteUrl', title: 'Korraldaja koduleht', type: 'url', validation: (r) => r.uri({ scheme: ['https', 'http'] }) }),
+    defineField({ name: 'shortCode', title: 'Lühikood', type: 'string', description: 'Punktitabeli veerupäis, 2–4 tähte (nt SAR). Tühi = tuletatakse nimest.', validation: (r) => r.max(4) }),
     defineField({ name: 'resultsUrl', title: 'Tulemuste link (RallyLynx)', type: 'url', description: 'Kuhu /tulemused plaat viib, nt https://rallylynx.com/e/…/results', validation: (r) => r.uri({ scheme: ['https'] }) }),
     defineField({
       name: 'hashtags',

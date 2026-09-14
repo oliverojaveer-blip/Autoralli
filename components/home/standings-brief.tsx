@@ -1,5 +1,6 @@
 import { ArrowRight } from '@phosphor-icons/react/dist/ssr'
-import { STANDINGS } from '@/lib/standings'
+import type { StandingsView } from '@/lib/standings-source'
+import { formatLongDate } from '@/lib/dates'
 import { getDictionary, localizedHref, type Locale } from '@/lib/i18n'
 import { FlagLink } from './flag-link'
 
@@ -17,11 +18,11 @@ function formatPoints(value: number) {
  * allika- ja uuendusrida on paigas, et päris andmed sama mustrit jätkaksid
  * (claude.md: tulemuse juures peab olema allikas ja viimase uuenduse aeg).
  */
-export function StandingsBrief({ locale }: { locale: Locale }) {
+export function StandingsBrief({ locale, view }: { locale: Locale; view: StandingsView }) {
   const t = getDictionary(locale)
-  const cls = STANDINGS[0]
-  const rows = cls.rows.slice(0, TOP)
-  const isSample = rows.some((r) => r.entrant === '—' && r.total === 0)
+  const cls = view.classes[0]
+  const rows = cls?.rows.slice(0, TOP) ?? []
+  const isSample = view.sample
 
   return (
     <section
@@ -35,16 +36,16 @@ export function StandingsBrief({ locale }: { locale: Locale }) {
                 {t.home.standingsTitle}
               </h2>
               <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] font-semibold uppercase tracking-[0.12em] text-white/60">
-                <span>{t.home.standingsClass}</span>
+                <span>{cls?.label ?? t.home.standingsClass}</span>
                 <span className="text-white/25" aria-hidden="true">
                   ·
                 </span>
-                <span>{t.home.standingsSource}</span>
+                <span>{view.source ? `${t.common.source}: ${view.source}` : t.home.standingsSource}</span>
                 <span className="text-white/25" aria-hidden="true">
                   ·
                 </span>
                 <span>
-                  {t.home.standingsUpdated}: {isSample ? t.home.standingsPending : '–'}
+                  {t.home.standingsUpdated}: {view.updatedAt ? formatLongDate(view.updatedAt, locale) : t.home.standingsPending}
                 </span>
               </p>
             </div>
@@ -67,12 +68,12 @@ export function StandingsBrief({ locale }: { locale: Locale }) {
 
           {rows.length === 0 ? (
             <p className="border border-white/10 px-6 py-12 text-center text-sm text-white/60">
-              {t.results.classPending(cls.label)}
+              {t.results.classPending(cls?.label ?? t.home.standingsClass)}
             </p>
           ) : (
             <ol
               className={`divide-y divide-white/10 border-y border-white/10 lg:max-w-[820px] ${isSample ? 'text-white/65' : ''}`}
-              aria-label={cls.label}
+              aria-label={cls?.label}
             >
               {rows.map((row) => (
                 <li
