@@ -32,6 +32,7 @@ export function SiteFooter({ locale }: { locale: Locale }) {
         { label: t.footer.ejc, href: '/ejc' },
         { label: t.footer.partners, href: '/partnerid' },
         { label: t.nav.contact, href: '/kontakt' },
+        { label: t.footer.privacy, href: '/privaatsus' },
       ],
     },
   ]

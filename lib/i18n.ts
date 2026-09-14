@@ -99,6 +99,13 @@ const et = {
     ejc: 'Estonian Junior Challenge',
     partners: 'Partnerid',
     languages: 'Eesti keeles ja inglise keeles',
+    privacy: 'Privaatsus',
+  },
+  privacy: {
+    title: 'Privaatsusteade',
+    metaDescription: 'Milliseid andmeid autoralli.ee kogub, miks ja kui kaua, ning millised on sinu õigused.',
+    updated: 'Uuendatud',
+    contactLead: 'Küsimused ja taotlused:',
   },
   home: {
     eyebrow: 'Estonian Rally Championship',
@@ -465,6 +472,13 @@ const en = {
     ejc: 'Estonian Junior Challenge',
     partners: 'Partners',
     languages: 'In Estonian and English',
+    privacy: 'Privacy',
+  },
+  privacy: {
+    title: 'Privacy notice',
+    metaDescription: 'What data autoralli.ee collects, why and for how long, and what your rights are.',
+    updated: 'Updated',
+    contactLead: 'Questions and requests:',
   },
   home: {
     eyebrow: 'Estonian Rally Championship',
