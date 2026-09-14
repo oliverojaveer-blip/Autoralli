@@ -598,11 +598,30 @@ export async function fetchRallyRetirements(
       driver: competitor?.driver.name ?? 'Teadmata',
       coDriver: competitor?.coDriver.name ?? 'Teadmata',
       vehicle: competitor?.vehicle ?? '—',
-      reason: r.reason,
+      reason: normalizeRetirementReason(r.reason),
       stageLabel: r.stageId ? itineraryItemLabel(findItineraryItem(r.stageId)) : '—',
       retiredAt: r.retiredAt ?? null,
     }
   })
+}
+
+/**
+ * RallyLynx saadab katkestamise põhjuse vaba tekstina ("Technical",
+ * "Rollover", "Off road" …). Viime need saidi sõnastiku võtmetele
+ * (`live.retirementReason`), et UI saaks tõlkida; tundmatu põhjus jääb
+ * alles sellisena, nagu ta tuli.
+ */
+function normalizeRetirementReason(raw: string): string {
+  const key = raw.trim().toLowerCase()
+  if (['mechanical', 'technical', 'engine', 'gearbox', 'suspension', 'electrical'].includes(key)) return 'mechanical'
+  if (['accident', 'crash', 'rollover', 'roll over', 'off road', 'off-road', 'offroad'].includes(key)) return 'accident'
+  if (['withdrawn', 'withdrew', 'did not start', 'dns'].includes(key)) return 'withdrawn'
+  if (['excluded', 'exclusion'].includes(key)) return 'excluded'
+  if (['disqualified', 'dsq'].includes(key)) return 'disqualified'
+  if (['retired', 'dnf', 'did not finish'].includes(key)) return 'retired'
+  if (['incomplete'].includes(key)) return 'incomplete'
+  if (['other', 'unknown'].includes(key)) return 'other'
+  return raw
 }
 
 // ---------------------------------------------------------------------------

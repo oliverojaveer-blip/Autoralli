@@ -1,17 +1,14 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
-import { CalendarBlank, MapPin } from '@phosphor-icons/react/dist/ssr'
 import { SiteNav } from '@/components/site-nav'
 import { SiteFooter } from '@/components/site-footer'
 import { LiveCenter } from '@/components/live-center/live-center'
-import { nextEvent } from '@/lib/events'
-import { dateTile, formatDateRange } from '@/lib/dates'
-import { getDictionary, pick } from '@/lib/i18n'
+import { LiveEventBar } from '@/components/live-center/live-event-bar'
+import { LiveSelectionProvider } from '@/components/live-center/live-selection'
+import { byDate, nextEvent } from '@/lib/events'
+import { getDictionary } from '@/lib/i18n'
 import { pageMetadata, toLocale, type LocaleParams } from '@/lib/page-metadata'
-import { fetchRallyEventOverview } from '@/lib/rallylynx/adapter'
-import { getCurrentRallyLynxEvent } from '@/lib/rallylynx/config'
 
-/** Elav sisu (RallyLynx / autosport.ee, ?leht=) — ei tohi ehitusaegselt kivistuda. */
+/** Elav sisu (RallyLynx) — ei tohi ehitusaegselt kivistuda. */
 export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
@@ -21,131 +18,32 @@ export async function generateMetadata({ params }: LocaleParams): Promise<Metada
 }
 
 /**
- * Live Center — eraldi leht (mitte /tulemused, mis jääb omaette
- * tulemuste lehena). Kui EAL alustab YouTube'i otseülekannet, tuleb see
- * siduda selle päris andmeallikaga, mitte kõvasti kirjutada.
+ * Live Center — eraldi leht (mitte /tulemused, mis jääb omaette tulemuste
+ * lehena). Kompositsioon on sama, mis avalehel: tume päis, võistluse riba
+ * (avalehe ringiriba kuju, loenduri asemel staatus), tume kleepuv
+ * vahekaardiriba ja selle all hele "ajavõtuleht" — hele sellepärast, et
+ * raja ääres loetakse tulemusi päevavalguses ja minutite kaupa.
+ *
+ * Võistluse nimi ja staatus tulevad RallyLynxist kliendis (`LiveEventBar`);
+ * hooajakalendri embleem/kuupäevad on ainult siis, kui need on sama
+ * võistluse omad (vt claude.md "Live-andmete puudumisel ära genereeri").
+ * Kui EAL alustab YouTube'i otseülekannet, tuleb see siduda päris
+ * andmeallikaga, mitte kõvasti kirjutada.
  */
-
-/**
- * Kuvatav etapi nimi: RallyLynx'ist tulev päris hetke-võistluse nimi, kui
- * see on seadistatud ja päring õnnestub — muidu langeb tagasi hooaja-
- * kalendri "järgmine võistlus" nimele. Ilma selleta näitas Live Center
- * alati kalendri järgmist etappi (nt "Saaremaa Ralli"), isegi kui
- * RALLYLYNX_EVENT_ID osutas hoopis mõnele teisele, juba käimasolevale
- * võistlusele.
- */
-async function fetchLiveEventName(): Promise<string | null> {
-  const credentials = getCurrentRallyLynxEvent()
-  if (!credentials) return null
-
-  try {
-    const overview = await fetchRallyEventOverview(credentials)
-    return overview.eventName
-  } catch {
-    return null
-  }
-}
-
 export default async function OtsePage({ params }: LocaleParams) {
   const locale = toLocale((await params).locale)
-  const t = getDictionary(locale)
-  const event = nextEvent()
-  const start = dateTile(event.startsAt, locale)
-  const end = dateTile(event.endsAt, locale)
-  const liveEventName = await fetchLiveEventName()
-  const displayName = liveEventName ?? event.name
-  // Kalendri logo/asukoht/kuupäevad kehtivad ainult siis, kui RallyLynx'i
-  // hetke-võistlus on tegelikult sama, mis kalendri "järgmine etapp" —
-  // muidu ei tohi neid (väljamõeldud) detaile päris teistsuguse võistluse
-  // kohta näidata (vt claude.md "Live-andmete puudumisel ära genereeri
-  // oletatavaid positsioone").
-  const calendarMatchesLive = !liveEventName || liveEventName === event.name
+  const events = byDate()
+  const event = nextEvent(events)
+  const roundNumber = events.findIndex((e) => e.id === event.id) + 1
 
   return (
     <>
       <SiteNav />
       <main id="sisu">
-        <section className="relative overflow-hidden bg-black">
-          <div className="absolute inset-0">
-            <Image
-              src={event.photo.src}
-              alt={pick(event.photo.alt, locale)}
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover opacity-60"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/20" />
-          </div>
-
-          <div className="shell relative flex min-h-[420px] flex-col justify-end gap-6 pb-10 pt-24 sm:min-h-[480px] sm:pb-14">
-            <div className="flex flex-wrap items-end justify-between gap-6">
-              <div>
-                {calendarMatchesLive && event.logo ? (
-                  <div className="mb-5 inline-flex items-center bg-white/95 px-4 py-3 shadow-lg">
-                    <Image
-                      src={event.logo.src}
-                      alt={event.logo.alt}
-                      width={event.logo.width}
-                      height={event.logo.height}
-                      className="h-14 w-auto object-contain sm:h-16"
-                    />
-                  </div>
-                ) : null}
-
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue">
-                  {t.live.eyebrow}
-                </p>
-                <h1 className="mt-3 max-w-[22ch] font-display text-4xl font-bold uppercase leading-[0.98] text-white sm:text-5xl lg:text-6xl">
-                  {displayName}
-                </h1>
-
-                {calendarMatchesLive ? (
-                  <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-white/80">
-                    <span className="inline-flex items-center gap-2">
-                      <MapPin size={16} weight="bold" className="text-blue" />
-                      {pick(event.location, locale)}
-                    </span>
-                    <span className="inline-flex items-center gap-2">
-                      <CalendarBlank size={16} weight="bold" className="text-blue" />
-                      {formatDateRange(event.startsAt, event.endsAt, locale)}
-                    </span>
-                  </div>
-                ) : null}
-              </div>
-
-              {calendarMatchesLive ? (
-                <div className="flex items-center gap-3">
-                  <div className="flex flex-col items-center bg-white px-4 py-2.5 leading-none text-black">
-                    <span className="font-display text-2xl font-bold">{start.day}</span>
-                    <span className="mt-0.5 text-[10px] font-semibold uppercase tracking-widest text-slate">
-                      {start.month}
-                    </span>
-                  </div>
-                  <span className="text-white/40">—</span>
-                  <div className="flex flex-col items-center bg-white px-4 py-2.5 leading-none text-black">
-                    <span className="font-display text-2xl font-bold">{end.day}</span>
-                    <span className="mt-0.5 text-[10px] font-semibold uppercase tracking-widest text-slate">
-                      {end.month}
-                    </span>
-                  </div>
-                </div>
-              ) : null}
-            </div>
-          </div>
-        </section>
-
-        <section className="border-b border-line py-16 lg:py-20">
-          <div className="shell">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue">{t.live.eyebrow}</p>
-            <h2 className="mt-3 font-display text-3xl font-bold uppercase leading-tight text-black sm:text-4xl">
-              {t.live.resultsTitle}
-            </h2>
-            <div className="mt-10">
-              <LiveCenter />
-            </div>
-          </div>
-        </section>
+        <LiveSelectionProvider>
+          <LiveEventBar calendarEvent={event} roundNumber={roundNumber} fallbackName={event.name} />
+          <LiveCenter />
+        </LiveSelectionProvider>
       </main>
       <SiteFooter locale={locale} />
     </>

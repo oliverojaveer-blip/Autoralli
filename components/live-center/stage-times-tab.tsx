@@ -1,50 +1,56 @@
 'use client'
 
-import { useEffect } from 'react'
-import type { RallyEventOverview, RallyStageResultsView, RallyStageView } from '@/lib/rallylynx/adapter'
+import type { RallyStageResultsView } from '@/lib/rallylynx/adapter'
 import { useRallyLynxResource } from './use-rallylynx-resource'
 import { ResourceBoundary } from './resource-boundary'
 import { useLiveSelection } from './live-selection'
-import { SeriesFilter, allowedClassIds } from './series-filter'
+import { SeriesFilter, allowedClassIds, selectedClassName } from './series-filter'
 import { StageSelector } from './stage-selector'
 import { formatDuration, formatGap } from './format'
 import { useT } from '../locale-provider'
+import {
+  GAP,
+  MOBILE_LIST,
+  NUM,
+  POS,
+  ResultRowMobile,
+  TABLE,
+  TABLE_WRAP,
+  TabHeader,
+  TD,
+  TH,
+  THEAD_ROW,
+  TIME,
+  rowClass,
+} from './table'
 
-/** Ühe valitud kiiruskatse tulemus (koht/aeg/vahe, ilma vahepunktideta). */
+/** Ühe kiiruskatse ajad. */
 export function StageTimesTab() {
-  const eventState = useRallyLynxResource<RallyEventOverview>('/api/rallylynx/event')
-  const stagesState = useRallyLynxResource<RallyStageView[]>('/api/rallylynx/stages')
-
-  const { stageId, setStageId, filter, setFilter } = useLiveSelection()
-
-  useEffect(() => {
-    if (stagesState.kind === 'ready' && stageId === null && stagesState.data.length > 0) {
-      setStageId(stagesState.data[stagesState.data.length - 1].id)
-    }
-  }, [stagesState, stageId, setStageId])
+  const { stageId, setStageId, filter, setFilter, event, stages, pollMs } = useLiveSelection()
 
   const stageResultsState = useRallyLynxResource<RallyStageResultsView>(
     stageId ? `/api/rallylynx/stages/${stageId}/results` : null,
-    { pollMs: 15_000 },
+    { pollMs: pollMs(15_000) },
   )
 
   return (
-    <ResourceBoundary state={eventState}>
-      {(event) => (
-        <ResourceBoundary state={stagesState}>
-          {(stages) => (
+    <ResourceBoundary state={event}>
+      {(ev) => (
+        <ResourceBoundary state={stages}>
+          {(stageList) => (
             <div>
-              <div className="flex flex-col gap-4 border-b border-line pb-6">
-                <SeriesFilter series={event.series} value={filter} onChange={setFilter} />
-                <StageSelector stages={stages} activeId={stageId} onChange={setStageId} />
+              <div className="flex flex-col gap-4 border-b border-line pb-5">
+                <StageSelector stages={stageList} activeId={stageId} onChange={setStageId} />
+                <SeriesFilter series={ev.series} value={filter} onChange={setFilter} />
               </div>
 
-              <div className="mt-8">
+              <div className="mt-6">
                 <ResourceBoundary state={stageResultsState}>
                   {(stage) => (
                     <StageTimesTable
                       stage={stage}
-                      allowedClassIds={allowedClassIds(event.series, filter)}
+                      allowedClassIds={allowedClassIds(ev.series, filter)}
+                      className={selectedClassName(ev.series, filter)}
                     />
                   )}
                 </ResourceBoundary>
@@ -60,104 +66,100 @@ export function StageTimesTab() {
 function StageTimesTable({
   stage,
   allowedClassIds,
+  className,
 }: {
   stage: RallyStageResultsView
   allowedClassIds: Set<string> | null
+  className: string | null
 }) {
   const t = useT()
-  const rows = allowedClassIds
+  const filtered = allowedClassIds
     ? stage.rows.filter((row) => row.classIds.some((id) => allowedClassIds.has(id)))
     : stage.rows
+  // Klassi vaates koht ja vahe klassi sees (vt overall-tab).
+  const classLeaderMs = className ? filtered.find((r) => r.position !== null && r.durationMs !== null)?.durationMs ?? null : null
+  let rank = 0
+  const rows = className
+    ? filtered.map((row) => {
+        if (row.position === null || row.durationMs === null) return row
+        rank += 1
+        return {
+          ...row,
+          position: rank,
+          gapToLeaderMs: classLeaderMs === null ? null : row.durationMs - classLeaderMs,
+        }
+      })
+    : filtered
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h3 className="font-display text-lg font-bold uppercase text-black">
+      <TabHeader
+        title={
+          <>
             {stage.code}
-            {stage.name ? ` — ${stage.name}` : ''}
-          </h3>
-          {stage.distanceM ? (
-            <p className="mt-1 text-xs text-slate">{(stage.distanceM / 1000).toFixed(2)} km</p>
-          ) : null}
-        </div>
-        <span className="inline-flex items-center rounded-md border border-blue bg-gradient-to-b from-blue/[0.04] to-blue/[0.18] px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.06em] text-blue">
-          {t.live.status[stage.status]}
-        </span>
-      </div>
+            {stage.name ? <span className="ml-2 text-lg text-slate">{stage.name}</span> : null}
+            {className ? <span className="ml-2 text-lg text-slate">· {className}</span> : null}
+          </>
+        }
+        detail={stage.distanceM ? `${(stage.distanceM / 1000).toFixed(2)} km` : undefined}
+        updatedAt={stage.updatedAt}
+        status={stage.status}
+        note={className ? t.live.classPositionsNote : undefined}
+      />
 
-      <div className="hidden overflow-x-auto rounded-md border border-line sm:block">
-        <table className="w-full min-w-[560px] border-collapse text-sm">
+      <div className={TABLE_WRAP}>
+        <table className={`${TABLE} min-w-[560px]`}>
           <thead>
-            <tr className="border-b border-line bg-gradient-to-b from-white to-mist text-left text-xs font-semibold uppercase tracking-[0.08em] text-slate">
-              <th className="w-10 px-3 py-2.5">{t.live.th.position}</th>
-              <th className="w-14 px-2 py-2.5">{t.live.th.number}</th>
-              <th className="px-3 py-2.5">{t.live.th.crew}</th>
-              <th className="px-3 py-2.5">{t.live.th.car}</th>
-              <th className="px-3 py-2.5 text-right">{t.live.th.time}</th>
-              <th className="px-3 py-2.5 text-right">{t.live.th.gap}</th>
+            <tr className={THEAD_ROW}>
+              <th className={`w-12 ${TH}`}>{t.live.th.position}</th>
+              <th className={`w-14 ${TH}`}>{t.live.th.number}</th>
+              <th className={TH}>{t.live.th.crew}</th>
+              <th className={TH}>{t.live.th.car}</th>
+              <th className={`${TH} text-right`}>{t.live.th.time}</th>
+              <th className={`${TH} text-right`}>{t.live.th.gap}</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr
-                key={row.competitorId}
-                className={`border-b border-line last:border-0 ${
-                  row.position === 1 ? 'bg-gradient-to-b from-blue/[0.03] to-blue/[0.10]' : ''
-                }`}
-              >
-                <td className="px-3 py-2.5 font-display text-base font-bold text-black">
-                  {row.position ?? '—'}
+              <tr key={row.competitorId} className={rowClass(row.position)}>
+                <td className={TD}>
+                  <span className={POS}>{row.position ?? '—'}</span>
                 </td>
-                <td className="px-2 py-2.5 font-mono text-slate">{row.number}</td>
-                <td className="px-3 py-2.5">
+                <td className={`${TD} ${NUM}`}>{row.number}</td>
+                <td className={TD}>
                   <p className="font-semibold leading-tight text-black">{row.driver}</p>
                   <p className="text-xs text-slate">{row.coDriver}</p>
                 </td>
-                <td className="px-3 py-2.5 text-slate">{row.vehicle}</td>
-                <td className="px-3 py-2.5 text-right font-mono tabular-nums text-black">
-                  {row.onStage ? t.live.onStage : row.durationMs !== null ? formatDuration(row.durationMs) : '—'}
+                <td className={`${TD} text-slate`}>{row.vehicle}</td>
+                <td className={`${TD} ${TIME}`}>
+                  {row.onStage ? (
+                    <span className="text-live">{t.live.onStage}</span>
+                  ) : row.durationMs !== null ? (
+                    formatDuration(row.durationMs)
+                  ) : (
+                    '—'
+                  )}
                 </td>
-                <td className="px-3 py-2.5 text-right font-mono tabular-nums text-blue">
-                  {formatGap(row.gapToLeaderMs)}
-                </td>
+                <td className={`${TD} ${GAP} ${row.position === 1 ? 'text-blue' : ''}`}>{formatGap(row.gapToLeaderMs)}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      <ul className="flex flex-col gap-2 sm:hidden">
+      <ul className={MOBILE_LIST}>
         {rows.map((row) => (
-          <li
+          <ResultRowMobile
             key={row.competitorId}
-            className={`rounded-md border bg-gradient-to-b p-3 ${
-              row.position === 1
-                ? 'border-blue from-blue/[0.04] to-blue/[0.18]'
-                : 'border-line from-white to-mist'
-            }`}
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-baseline gap-2.5">
-                <span className="font-display text-xl font-bold leading-none text-black">
-                  {row.position ?? '—'}
-                </span>
-                <div>
-                  <p className="font-semibold leading-tight text-black">
-                    #{row.number} {row.driver}
-                  </p>
-                  <p className="text-xs text-slate">{row.coDriver}</p>
-                </div>
-              </div>
-              <span className="whitespace-nowrap font-mono text-base font-bold tabular-nums text-black">
-                {row.onStage ? t.live.onStage : row.durationMs !== null ? formatDuration(row.durationMs) : '—'}
-              </span>
-            </div>
-            <p className="mt-1.5 text-xs text-slate">{row.vehicle}</p>
-            <p className="mt-1 font-mono text-xs tabular-nums text-blue">
-              {formatGap(row.gapToLeaderMs)}
-            </p>
-          </li>
+            position={row.position}
+            number={row.number}
+            driver={row.driver}
+            coDriver={row.coDriver}
+            vehicle={row.vehicle}
+            timeMs={row.durationMs}
+            timeLabel={row.onStage ? t.live.onStage : null}
+            gapMs={row.gapToLeaderMs}
+          />
         ))}
       </ul>
     </div>

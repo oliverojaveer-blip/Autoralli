@@ -1,5 +1,7 @@
 'use client'
 
+import { useId } from 'react'
+import { CaretDown } from '@phosphor-icons/react/dist/ssr'
 import type { RallyClassView, RallySeriesView } from '@/lib/rallylynx/adapter'
 import { ChipStrip, Chip } from './chip-strip'
 import { useT } from '../locale-provider'
@@ -31,9 +33,10 @@ export function classesForSeries(series: RallySeriesView[], seriesId: string): R
 }
 
 /**
- * Kahetasandiline filter: sari (EMV, EJC …) ja selle sees üksik klass
- * (EMV1, EMV2 …). Sarja vahetus nullib klassivaliku, sest vana klass ei
- * pruugi uude sarja kuuluda.
+ * Kahetasandiline filter: sari (mõni plaat) ja selle sees klass. Klasse
+ * võib olla kakskümmend, seega on see natiivne `<select>` — töötab ilma
+ * JS-ita, avab telefonis süsteemse valija ega venita riba kahe meetri
+ * pikkuseks. Sarja vahetus nullib klassivaliku.
  */
 export function SeriesFilter({
   series,
@@ -45,13 +48,14 @@ export function SeriesFilter({
   onChange: (next: ClassFilter) => void
 }) {
   const t = useT()
+  const selectId = useId()
   const classes = classesForSeries(series, value.seriesId)
 
   return (
-    <div className="flex flex-col gap-4">
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate">{t.live.series}</p>
-        <div className="mt-2">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-8">
+      <div className="min-w-0">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate">{t.live.series}</p>
+        <div className="mt-1.5">
           <ChipStrip ariaLabel={t.live.chooseSeries}>
             <Chip
               active={value.seriesId === ALL_SERIES}
@@ -65,7 +69,7 @@ export function SeriesFilter({
                 active={value.seriesId === s.id}
                 onClick={() => onChange({ seriesId: s.id, classId: ALL_CLASSES })}
               >
-                {s.name}
+                {s.code || s.name}
               </Chip>
             ))}
           </ChipStrip>
@@ -73,26 +77,30 @@ export function SeriesFilter({
       </div>
 
       {classes.length > 0 ? (
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate">{t.live.classLabel}</p>
-          <div className="mt-2">
-            <ChipStrip ariaLabel={t.live.chooseClass}>
-              <Chip
-                active={value.classId === ALL_CLASSES}
-                onClick={() => onChange({ ...value, classId: ALL_CLASSES })}
-              >
-                {t.common.all}
-              </Chip>
+        <div className="shrink-0">
+          <label htmlFor={selectId} className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate">
+            {t.live.classLabel}
+          </label>
+          <div className="relative mt-1.5 ml-1 inline-flex skew-x-[-19deg] border border-line bg-white transition-colors focus-within:border-blue hover:border-blue">
+            <select
+              id={selectId}
+              value={value.classId}
+              onChange={(e) => onChange({ ...value, classId: e.target.value })}
+              className="min-h-[44px] skew-x-[19deg] cursor-pointer appearance-none bg-transparent py-2 pl-4 pr-10 text-[12px] font-bold uppercase tracking-[0.08em] text-black focus:outline-none"
+            >
+              <option value={ALL_CLASSES}>{t.common.all}</option>
               {classes.map((c) => (
-                <Chip
-                  key={c.id}
-                  active={value.classId === c.id}
-                  onClick={() => onChange({ ...value, classId: c.id })}
-                >
+                <option key={c.id} value={c.id}>
                   {c.name}
-                </Chip>
+                </option>
               ))}
-            </ChipStrip>
+            </select>
+            <CaretDown
+              size={14}
+              weight="bold"
+              aria-hidden="true"
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 skew-x-[19deg] text-slate"
+            />
           </div>
         </div>
       ) : null}
