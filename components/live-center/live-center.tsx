@@ -11,6 +11,7 @@ import { CompetitorsTab } from './competitors-tab'
 import { PenaltiesTab } from './penalties-tab'
 import { RetirementsTab } from './retirements-tab'
 import { ChipStrip, Chip } from './chip-strip'
+import { LiveSelectionProvider } from './live-selection'
 import { useT } from '../locale-provider'
 
 const TABS = [
@@ -32,6 +33,10 @@ const TABS = [
  * Vahekaardiriba on horisontaalselt keritav "slider" (`ChipStrip`), mitte
  * mitmereaks murduv nupurivi — mobiilis on ühe sõrmeliigutusega kerimine
  * palju kiirem kui mitme rea vahel skaneerimine.
+ *
+ * Valitud kiiruskatse ja sari/klass on vahekaartide ühine olek
+ * (`LiveSelectionProvider`): SS6 katseaegadelt üldarvestusse liikudes
+ * jääb vaade "pärast SS6".
  */
 export function LiveCenter() {
   const t = useT()
@@ -39,7 +44,8 @@ export function LiveCenter() {
   const active = TABS.find((tab) => tab.id === activeId) ?? TABS[0]
 
   return (
-    <div>
+    <LiveSelectionProvider>
+      <div>
       <div className="border-b border-line pb-6">
         <ChipStrip ariaLabel={t.live.chooseView}>
           {TABS.map((tab) => (
@@ -64,6 +70,7 @@ export function LiveCenter() {
           className="h-4 w-auto object-contain opacity-70"
         />
       </div>
-    </div>
+      </div>
+    </LiveSelectionProvider>
   )
 }

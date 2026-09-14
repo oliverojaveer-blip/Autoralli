@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import type { RallyClassificationView, RallyEventOverview, RallyStageView } from '@/lib/rallylynx/adapter'
 import { useRallyLynxResource } from './use-rallylynx-resource'
 import { ResourceBoundary } from './resource-boundary'
-import { SeriesFilter, DEFAULT_FILTER, allowedClassIds, selectedClassName } from './series-filter'
+import { useLiveSelection } from './live-selection'
+import { SeriesFilter, allowedClassIds, selectedClassName } from './series-filter'
 import { StageSelector } from './stage-selector'
 import { formatDuration, formatGap, formatUpdatedAt } from './format'
 import { useLocale, useT } from '../locale-provider'
@@ -14,14 +15,13 @@ export function OverallTab() {
   const eventState = useRallyLynxResource<RallyEventOverview>('/api/rallylynx/event')
   const stagesState = useRallyLynxResource<RallyStageView[]>('/api/rallylynx/stages')
 
-  const [stageId, setStageId] = useState<string | null>(null)
-  const [filter, setFilter] = useState(DEFAULT_FILTER)
+  const { stageId, setStageId, filter, setFilter } = useLiveSelection()
 
   useEffect(() => {
     if (stagesState.kind === 'ready' && stageId === null && stagesState.data.length > 0) {
       setStageId(stagesState.data[stagesState.data.length - 1].id)
     }
-  }, [stagesState, stageId])
+  }, [stagesState, stageId, setStageId])
 
   const overallState = useRallyLynxResource<RallyClassificationView>(
     stageId ? `/api/rallylynx/classification?afterStage=${stageId}` : null,

@@ -1,22 +1,23 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import type { RallyStageResultsView, RallyStageView } from '@/lib/rallylynx/adapter'
 import { useRallyLynxResource } from './use-rallylynx-resource'
 import { ResourceBoundary } from './resource-boundary'
 import { StageSelector } from './stage-selector'
+import { useLiveSelection } from './live-selection'
 import { formatDuration, formatGap } from './format'
 import { useT } from '../locale-provider'
 
 export function SplitTimesTab() {
   const stagesState = useRallyLynxResource<RallyStageView[]>('/api/rallylynx/stages')
-  const [stageId, setStageId] = useState<string | null>(null)
+  const { stageId, setStageId } = useLiveSelection()
 
   useEffect(() => {
     if (stagesState.kind === 'ready' && stageId === null && stagesState.data.length > 0) {
       setStageId(stagesState.data[stagesState.data.length - 1].id)
     }
-  }, [stagesState, stageId])
+  }, [stagesState, stageId, setStageId])
 
   const stageResultsState = useRallyLynxResource<RallyStageResultsView>(
     stageId ? `/api/rallylynx/stages/${stageId}/results` : null,

@@ -1,17 +1,17 @@
 'use client'
 
-import { useState } from 'react'
 import type { RallyCompetitorRow, RallyEventOverview } from '@/lib/rallylynx/adapter'
 import { useRallyLynxResource } from './use-rallylynx-resource'
 import { ResourceBoundary } from './resource-boundary'
-import { SeriesFilter, DEFAULT_FILTER, allowedClassIds } from './series-filter'
+import { SeriesFilter, allowedClassIds } from './series-filter'
+import { useLiveSelection } from './live-selection'
 import { useT } from '../locale-provider'
 
 export function CompetitorsTab() {
   const t = useT()
   const eventState = useRallyLynxResource<RallyEventOverview>('/api/rallylynx/event')
   const competitorsState = useRallyLynxResource<RallyCompetitorRow[]>('/api/rallylynx/competitors')
-  const [filter, setFilter] = useState(DEFAULT_FILTER)
+  const { filter, setFilter } = useLiveSelection()
 
   return (
     <ResourceBoundary state={eventState}>
