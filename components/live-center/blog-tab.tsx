@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Image from 'next/image'
 import { ArrowUp, ArrowUpRight, Play, PushPin } from '@phosphor-icons/react/dist/ssr'
 import type { LiveBlogPost, LiveBlogView } from '@/lib/live-blog/types'
@@ -11,6 +11,7 @@ import { ChipStrip, Chip } from './chip-strip'
 import { useLiveSelection } from './live-selection'
 import { useLocale, useT } from '../locale-provider'
 import { TabHeader } from './table'
+import { setEmbedMode, useEmbedMode } from '@/lib/embed-consent'
 
 const ALL = 'all'
 
@@ -256,49 +257,104 @@ const PROVIDER_LABEL: Record<NonNullable<LiveBlogPost['embed']>['provider'], str
   other: 'Link',
 }
 
-/** Sotsiaalmeedia postitus: kerge kaart, iframe alles klõpsuga. */
+/**
+ * Sotsiaalmeedia postitus. Vaikimisi kerge kaart, iframe klõpsuga (klõps
+ * on nõusolek kolmanda osapoole küpsisteks). Esimese klõpsu järel
+ * pakutakse üks kord "näita edaspidi automaatselt"; kui lugeja nõustub,
+ * laetakse manused ise, kui need vaatesse kerivad (mitte kõik korraga —
+ * 3G). Eelistus on seadmes, tagasi keeratav jaluses.
+ */
 function EmbedCard({ post }: { post: LiveBlogPost }) {
   const t = useT()
+  const mode = useEmbedMode()
   const [open, setOpen] = useState(false)
+  const [offer, setOffer] = useState(false)
+  const [inView, setInView] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
   const embed = post.embed as NonNullable<LiveBlogPost['embed']>
   const frame = embedFrameUrl(embed)
   const label = PROVIDER_LABEL[embed.provider]
 
-  if (open && frame) {
+  // Automaatrežiimis laeb iframe alles siis, kui kaart on vaatesse kerinud.
+  useEffect(() => {
+    if (mode !== 'auto' || open || !ref.current || typeof IntersectionObserver === 'undefined') return
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setInView(true)
+          io.disconnect()
+        }
+      },
+      { rootMargin: '200px 0px' },
+    )
+    io.observe(ref.current)
+    return () => io.disconnect()
+  }, [mode, open])
+
+  const show = frame && (open || (mode === 'auto' && inView))
+
+  if (show) {
     return (
-      <div className="mt-3 max-w-[540px] border border-line bg-white">
+      <div ref={ref} className="mt-3 max-w-[540px] border border-line bg-white">
         <iframe
-          src={frame}
+          src={frame as string}
           title={`${label} ${embed.handle ?? ''}`.trim()}
           className="block w-full"
           style={{ height: embed.provider === 'youtube' ? 304 : 620 }}
           allow="encrypted-media; picture-in-picture"
           loading="lazy"
         />
-        <a
-          href={embed.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-between gap-2 border-t border-line px-4 py-2.5 text-[12px] font-bold uppercase tracking-[0.1em] text-slate hover:text-black"
-        >
-          {t.live.blog.openOn(label)}
-          <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
-        </a>
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-4 py-2.5 text-[12px]">
+          <a
+            href={embed.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 font-bold uppercase tracking-[0.1em] text-slate hover:text-black"
+          >
+            {t.live.blog.openOn(label)}
+            <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
+          </a>
+          {offer && mode === 'ask' ? (
+            <span className="flex flex-wrap items-center gap-2 text-slate">
+              {t.live.blog.autoOffer}
+              <button
+                type="button"
+                onClick={() => {
+                  setEmbedMode('auto')
+                  setOffer(false)
+                }}
+                className="inline-flex min-h-[32px] skew-x-[-19deg] items-center border border-blue bg-blue px-3 text-white hover:bg-black"
+              >
+                <span className="skew-x-[19deg] font-bold uppercase tracking-[0.1em]">{t.live.blog.autoYes}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setOffer(false)}
+                className="min-h-[32px] font-bold uppercase tracking-[0.1em] text-slate hover:text-black"
+              >
+                {t.live.blog.autoNo}
+              </button>
+            </span>
+          ) : null}
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="mt-3 flex max-w-[540px] flex-wrap items-center justify-between gap-3 border border-line bg-mist px-4 py-3">
+    <div ref={ref} className="mt-3 flex max-w-[540px] flex-wrap items-center justify-between gap-3 border border-line bg-mist px-4 py-3">
       <span className="text-[13px] text-black">
         <span className="font-bold">{label}</span>
         {embed.handle ? <span className="text-slate"> · {embed.handle}</span> : null}
-        <span className="block text-[12px] text-slate">{t.live.blog.embedNote}</span>
+        <span className="block text-[12px] text-slate">{mode === 'auto' && frame ? t.live.blog.loading : t.live.blog.embedNote}</span>
       </span>
       {frame ? (
         <button
           type="button"
-          onClick={() => setOpen(true)}
+          onClick={() => {
+            setOpen(true)
+            setOffer(true)
+          }}
           className="inline-flex min-h-[40px] skew-x-[-19deg] items-center border border-line bg-white px-4 text-black transition-colors hover:border-blue hover:bg-blue hover:text-white"
         >
           <span className="skew-x-[19deg] text-[12px] font-bold uppercase tracking-[0.1em]">{t.live.blog.showPost}</span>

@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { getDictionary, localizedHref, type Locale } from '@/lib/i18n'
+import { EmbedPreference } from './embed-preference'
 
 export function SiteFooter({ locale }: { locale: Locale }) {
   const t = getDictionary(locale)
@@ -72,7 +73,10 @@ export function SiteFooter({ locale }: { locale: Locale }) {
 
         <div className="mt-16 flex flex-col gap-4 border-t border-white/10 pt-8 sm:flex-row sm:items-center sm:justify-between">
           <p className="font-mono text-xs text-white/50">&copy; {new Date().getFullYear()} Autoralli.ee</p>
-          <p className="font-mono text-xs text-white/50">{t.footer.languages}</p>
+          <div className="flex flex-col gap-2 sm:items-end">
+            <p className="font-mono text-xs text-white/50">{t.footer.languages}</p>
+            <EmbedPreference />
+          </div>
         </div>
       </div>
     </footer>

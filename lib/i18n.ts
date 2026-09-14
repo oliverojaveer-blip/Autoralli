@@ -100,6 +100,10 @@ const et = {
     partners: 'Partnerid',
     languages: 'Eesti keeles ja inglise keeles',
     privacy: 'Privaatsus',
+    embedsLabel: 'Sotsiaalmeedia postitused',
+    embedsAuto: 'automaatselt',
+    embedsAsk: 'klõpsuga',
+    embedsToggle: 'Muuda',
   },
   privacy: {
     title: 'Privaatsusteade',
@@ -311,6 +315,10 @@ const et = {
       showPost: 'Näita postitust',
       openOn: (platform: string) => `Ava ${platform}-s`,
       embedNote: 'Laetakse klõpsuga (kolmanda osapoole sisu ja küpsised).',
+      loading: 'Laadin…',
+      autoOffer: 'Näita edaspidi automaatselt?',
+      autoYes: 'Jah, alati',
+      autoNo: 'Ainult klõpsuga',
       sampleNote: 'Postitused on väljamõeldud. Päris blogi avaneb, kui võistlusel on Sanitys „Otseblogi on avatud“.',
     },
     retirementReason: {
@@ -485,6 +493,10 @@ const en = {
     partners: 'Partners',
     languages: 'In Estonian and English',
     privacy: 'Privacy',
+    embedsLabel: 'Social-media posts',
+    embedsAuto: 'automatically',
+    embedsAsk: 'on tap',
+    embedsToggle: 'Change',
   },
   privacy: {
     title: 'Privacy notice',
@@ -696,6 +708,10 @@ const en = {
       showPost: 'Show post',
       openOn: (platform: string) => `Open on ${platform}`,
       embedNote: 'Loads on tap (third-party content and cookies).',
+      loading: 'Loading…',
+      autoOffer: 'Show automatically from now on?',
+      autoYes: 'Yes, always',
+      autoNo: 'Only on tap',
       sampleNote: 'These posts are made up. The real blog opens once a rally has “live blog enabled” in Sanity.',
     },
     retirementReason: {

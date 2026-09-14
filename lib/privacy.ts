@@ -64,11 +64,11 @@ export const PRIVACY_SECTIONS: PrivacySection[] = [
     title: { et: 'Kolmandate osapoolte sisu', en: 'Third-party content' },
     paragraphs: {
       et: [
-        'Otseblogis võib olla Instagrami, Facebooki, TikToki või YouTube’i postitusi. Need laetakse alles siis, kui sa ise „Näita postitust“ vajutad — enne seda sinu seadmest nendele platvormidele midagi ei saadeta. Pärast klõpsu kehtivad vastava platvormi enda küpsised ja privaatsustingimused.',
+        'Otseblogis võib olla Instagrami, Facebooki, TikToki või YouTube’i postitusi. Need laetakse alles siis, kui sa ise „Näita postitust“ vajutad — enne seda sinu seadmest nendele platvormidele midagi ei saadeta. Pärast klõpsu kehtivad vastava platvormi enda küpsised ja privaatsustingimused. Kui valid „Jah, alati“, jääb see eelistus sinu seadmesse (mitte meie serverisse) ja postitused laetakse edaspidi ise; valiku saab lehe jaluses tagasi keerata.',
         'Tulemused tulevad ajavõtupartnerilt RallyLynx ja uudised Eesti Autospordi Liidu lehelt autosport.ee. Need on avalikud võistlusandmed (võistlejate nimed, ajad, punktid), mida avaldab võistluse korraldaja.',
       ],
       en: [
-        'The live blog may include Instagram, Facebook, TikTok or YouTube posts. They load only when you tap “Show post” — nothing is sent from your device to those platforms before that. After the tap, the platform’s own cookies and privacy terms apply.',
+        'The live blog may include Instagram, Facebook, TikTok or YouTube posts. They load only when you tap “Show post” — nothing is sent from your device to those platforms before that. After the tap, the platform’s own cookies and privacy terms apply. If you choose “Yes, always”, that preference is stored on your device (not on our server) and posts load by themselves from then on; you can switch it back in the page footer.',
         'Results come from the timing partner RallyLynx and news from the Estonian Autosport Union site autosport.ee. These are public competition data (crew names, times, points) published by the event organiser.',
       ],
     },
