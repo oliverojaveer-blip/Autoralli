@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import { SiteNav } from '@/components/site-nav'
 import { SiteFooter } from '@/components/site-footer'
 import { StandingsTable } from '@/components/standings-table'
@@ -41,6 +42,24 @@ export default async function TulemusedPage({ params }: LocaleParams) {
             <div className="mt-8">
               <ResultsEventSlider />
             </div>
+
+            {/* Ajavõtupartneri tunnustus: tulemused ja registreerimine elavad RallyLynxis. */}
+            <a
+              href="https://rallylynx.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={t.results.poweredByAria}
+              className="group mt-10 inline-flex items-center gap-3 border-t border-line pt-6 text-xs font-semibold uppercase tracking-[0.14em] text-slate transition-colors hover:text-black"
+            >
+              {t.results.poweredBy}
+              <Image
+                src="/images/partners/rallylynx-logo.png"
+                alt="RallyLynx"
+                width={1024}
+                height={551}
+                className="h-9 w-auto object-contain transition-opacity group-hover:opacity-80 sm:h-11"
+              />
+            </a>
           </div>
         </section>
 
