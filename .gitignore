@@ -48,3 +48,9 @@ next-env.d.ts
 /blob-report/
 /playwright/.cache/
 /screenshots/
+
+# Impeccable tööfailid (pildid, vahemälu, decision-lehed); brief ja kriitika lähevad kaasa
+.impeccable/review/
+.impeccable/live/
+.impeccable/questions/
+.impeccable/hook.cache.json

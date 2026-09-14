@@ -102,6 +102,50 @@
   transform-origin: center;
 }
 
+/* Avalehe uudistelava: uus pilt pühib 19° servaga vasakult üle eelmise,
+   pealkiri tõuseb järele, progressiriba täitub sama kaua kui uudis püsib. */
+@keyframes wipe-in {
+  from {
+    clip-path: polygon(0 0, 0 0, -20% 100%, -20% 100%);
+  }
+  to {
+    clip-path: polygon(0 0, 120% 0, 100% 100%, -20% 100%);
+  }
+}
+
+.wipe-in {
+  animation: wipe-in 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes rise-in {
+  from {
+    transform: translateY(14px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.rise-in {
+  animation: rise-in 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes bar-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.bar-fill {
+  transform-origin: left center;
+  animation: bar-fill 6000ms linear both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

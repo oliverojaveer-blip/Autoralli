@@ -12,7 +12,7 @@ function parts(iso: string) {
   return { day: d.getUTCDate(), month: d.getUTCMonth(), year: d.getUTCFullYear() }
 }
 
-/** "9. kuni 10. okt 2026" / "9–10 Oct 2026" */
+/** "9.–10. okt 2026" / "9–10 Oct 2026" */
 export function formatDateRange(startsAt: string, endsAt: string, locale: Locale): string {
   const { dates } = getDictionary(locale)
   const s = parts(startsAt)
