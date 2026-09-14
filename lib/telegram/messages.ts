@@ -77,7 +77,15 @@ export const msg = {
 
   inviteCreated: (link: string, role: string, areas: string) =>
     `Kutse loodud (${role}${areas ? `, ${areas}` : ''}). Saada see link inimesele:\n${link}\n\nLink kehtib ühe korra.`,
-  inviteUsage: 'Kasutus: <code>/kutse moderated SS6</code> või <code>/kutse trusted</code> või <code>/kutse moderator</code>',
+  inviteUsage: [
+    'Kellele kutse teha? Lisa roll ja soovi korral ala:',
+    '',
+    '<code>/kutse moderated SS3</code> — pealtvaataja, sina kinnitad postitused enne avaldamist',
+    '<code>/kutse trusted Hooldus</code> — usaldatud autor (meedia, korraldaja), avaldatakse kohe',
+    '<code>/kutse moderator</code> — teine moderaator samade õigustega',
+    '',
+    'Vastuseks saad ühekordse lingi, mille saadad inimesele edasi.',
+  ].join('\n'),
   contributorsHeader: (event: string) => `<b>${event}</b> kaasautorid:`,
   contributorLine: (name: string, role: string, active: boolean, areas: string) =>
     `• ${name} — ${role}${areas ? ` (${areas})` : ''}${active ? '' : ' — mitteaktiivne'}`,
