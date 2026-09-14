@@ -9,8 +9,8 @@ import { getDictionary, localizedHref, pick, type Locale } from '@/lib/i18n'
 /**
  * Hooaja kuus ringi ühes reas (telefonis keritav, laial ekraanil kuus
  * kõrvuti). DOM-järjekord on tähtsuse järgi: järgmine ring, siis tulevased,
- * siis toimunud — nii on telefonis ja ilma JS-ita esimesena näha see, mida
- * fänn otsib. Laial ekraanil paneb `order` kaardid tagasi kronoloogiliseks.
+ * siis toimunud värskeimast alates — nii on telefonis ja ilma JS-ita
+ * esimesena näha see, mida fänn otsib. Laial ekraanil paneb `order` kaardid tagasi kronoloogiliseks.
  * Toimunud ringid on tuhmid ja märgitud, järgmine ring kannab sinist
  * ülaserva ja ürituse embleemi. Andmed: `lib/events.ts`.
  */
@@ -20,9 +20,11 @@ export function SeasonStrip({ locale }: { locale: Locale }) {
   const next = nextEvent(events)
   const now = Date.now()
   const nextIndex = events.findIndex((e) => e.id === next.id)
+  // Järgmine ring, siis tulevased kronoloogiliselt, siis toimunud
+  // viimasest esimeseni (R6, R5, R4 …) — värskeim tulemus kõige lähemal.
   const ordered = [
     ...events.slice(nextIndex),
-    ...events.slice(0, nextIndex),
+    ...events.slice(0, nextIndex).reverse(),
   ].map((event) => ({ event, index: events.indexOf(event) }))
   const ORDER = ['xl:order-1', 'xl:order-2', 'xl:order-3', 'xl:order-4', 'xl:order-5', 'xl:order-6']
 
