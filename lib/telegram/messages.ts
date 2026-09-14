@@ -5,7 +5,15 @@
 
 export const CONSENT_VERSION = 'v1-2026-09'
 
-export const SITE_URL = 'https://autoralli.ee'
+/**
+ * Saidi avalik aadress linkide jaoks. Enne domeeni on see Verceli aadress
+ * (NEXT_PUBLIC_SITE_URL Verceli seadetes); kui seda pole, Verceli enda
+ * VERCEL_URL; viimane varuvariant autoralli.ee.
+ */
+export const SITE_URL = (
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://autoralli.ee')
+).replace(/\/$/, '')
 
 export const msg = {
   notPaired:

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { OverallTab } from './overall-tab'
 import { BlogTab } from './blog-tab'
@@ -26,6 +26,27 @@ const TABS = [
   { id: 'retirements', labelKey: 'retirements', Component: RetirementsTab },
 ] as const
 
+type TabId = (typeof TABS)[number]['id']
+
+/** Aadressiriba ankrud (eestikeelsed, nagu URL-id mujal saidil). */
+const HASH: Record<TabId, string> = {
+  overall: 'uldarvestus',
+  blog: 'blogi',
+  'stage-times': 'katseajad',
+  splits: 'vaheajad',
+  winners: 'katsevoitjad',
+  timetable: 'ajatabel',
+  'start-list': 'startinimekiri',
+  penalties: 'karistused',
+  retirements: 'katkestajad',
+}
+
+function tabFromHash(hash: string): TabId | null {
+  const key = hash.replace(/^#/, '').toLowerCase()
+  const found = (Object.keys(HASH) as TabId[]).find((id) => HASH[id] === key || id === key)
+  return found ?? null
+}
+
 /**
  * RallyLynx-põhine tulemuste keskus /otse lehel. Vahekaardid vastavad
  * otse API endpointidele — igaüks laeb ja uuendab oma andmeid ise;
@@ -38,8 +59,26 @@ const TABS = [
  */
 export function LiveCenter() {
   const t = useT()
-  const [activeId, setActiveId] = useState<(typeof TABS)[number]['id']>('overall')
+  const [activeId, setActiveId] = useState<TabId>('overall')
   const active = TABS.find((tab) => tab.id === activeId) ?? TABS[0]
+
+  // Süvalink: /otse#blogi, /otse#katseajad … avab vahekaardi; valik
+  // kirjutatakse aadressiribale, et lingi saaks edasi saata.
+  useEffect(() => {
+    const fromHash = tabFromHash(window.location.hash)
+    if (fromHash) setActiveId(fromHash)
+    const onHash = () => {
+      const id = tabFromHash(window.location.hash)
+      if (id) setActiveId(id)
+    }
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
+  }, [])
+
+  const selectTab = (id: TabId) => {
+    setActiveId(id)
+    window.history.replaceState(null, '', `#${HASH[id]}`)
+  }
 
   return (
     <div>
@@ -52,7 +91,7 @@ export function LiveCenter() {
                 id={`live-tab-${tab.id}`}
                 controls="live-panel"
                 active={tab.id === activeId}
-                onClick={() => setActiveId(tab.id)}
+                onClick={() => selectTab(tab.id)}
               >
                 {t.live.tabs[tab.labelKey]}
               </Chip>
